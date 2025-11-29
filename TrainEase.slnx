@@ -3,8 +3,14 @@
   <Folder Name="/src/APIs/">
     <Project Path="TrainEase.APIs/TrainEase.APIs.csproj" Id="74e0bc55-f22a-46fd-aa66-773ed5ce1481" />
   </Folder>
-  <Folder Name="/src/Core/" />
-  <Folder Name="/src/Infrastructure/" />
+  <Folder Name="/src/Core/">
+    <Project Path="TrainEase.Core.Application.Abstrations/TrainEase.Core.Application.Abstrations.csproj" Id="ade33cfd-a0f7-4363-948a-d9b48b079c47" />
+    <Project Path="TrainEase.Core.Application/TrainEase.Core.Application.csproj" Id="80fc1d32-c7a0-481f-b1c2-369492de9f6c" />
+  </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="TrainEase.Infrastructure.Presistance/TrainEase.Infrastructure.Presistance.csproj" Id="e09255ba-ad51-4503-b365-6c561ce877fe" />
+    <Project Path="TrainEase.Infrastructure/TrainEase.Infrastructure.csproj" Id="ee10785a-ee94-4b3c-83ba-3b26704e76d6" />
+  </Folder>
   <Folder Name="/src/UI/" />
   <Folder Name="/test/" />
 </Solution>
