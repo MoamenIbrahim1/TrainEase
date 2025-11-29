@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/src/" />
-  <Folder Name="/src/APIs/" />
+  <Folder Name="/src/APIs/">
+    <Project Path="TrainEase.APIs/TrainEase.APIs.csproj" Id="74e0bc55-f22a-46fd-aa66-773ed5ce1481" />
+  </Folder>
   <Folder Name="/src/Core/" />
   <Folder Name="/src/Infrastructure/" />
   <Folder Name="/src/UI/" />
