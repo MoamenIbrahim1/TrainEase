@@ -6,6 +6,7 @@
   <Folder Name="/src/Core/">
     <Project Path="TrainEase.Core.Application.Abstrations/TrainEase.Core.Application.Abstrations.csproj" Id="ade33cfd-a0f7-4363-948a-d9b48b079c47" />
     <Project Path="TrainEase.Core.Application/TrainEase.Core.Application.csproj" Id="80fc1d32-c7a0-481f-b1c2-369492de9f6c" />
+    <Project Path="TrainEase.Core.Domain/TrainEase.Core.Domain.csproj" Id="a9de26c8-0c9e-426f-a97d-2e4e414525e4" />
   </Folder>
   <Folder Name="/src/Infrastructure/">
     <Project Path="TrainEase.Infrastructure.Presistance/TrainEase.Infrastructure.Presistance.csproj" Id="e09255ba-ad51-4503-b365-6c561ce877fe" />
