@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TrainEase.Infrastructure.Presistance._Data
+namespace TrainEase.Infrastructure.Presistance
 {
-    internal class DbContext
+    public class AssemblyInformation
     {
     }
 }
