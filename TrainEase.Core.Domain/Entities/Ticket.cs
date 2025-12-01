@@ -7,6 +7,7 @@ namespace TrainEase.Core.Domain.Entities
        
         public decimal Price { get; set; }
         public required string TicketType { get; set; } 
+        public int ScheduleId {  get; set; }
 
 
         public int BookId { get; set; }
@@ -14,6 +15,8 @@ namespace TrainEase.Core.Domain.Entities
 
         public virtual Booking Booking { get; set; } = default!;
         public virtual Passenger Passenger { get; set; } = default!;
+        public virtual Schedule Schedule { get; set; } = default!;
+
 
     }
 }
