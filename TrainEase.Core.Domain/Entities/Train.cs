@@ -7,7 +7,10 @@
         public int CarriageCount { get; set; }
         public int SeatsCount { get; set; }
         public int ScheduleId { get; set; }
+        public int BookingId { get; set; }
         public virtual ICollection<Carriage> Carriages { get; set; }
         public virtual ICollection<Schedule> Schedules { get; set; }
+        public virtual ICollection<Station> Stations { get; set; }
+        public virtual Booking Booking { get; set; }
     }
 }

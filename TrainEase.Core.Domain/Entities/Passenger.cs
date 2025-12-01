@@ -10,8 +10,6 @@ namespace TrainEase.Core.Domain.Entities
         public required string Password { get; set; }
         public int Age { get; set; }
         public required string NationalId { get; set; }
-        public int NotificationId { get; set; }
-
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
         public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
         public virtual Notification Notifications { get; set; } = null!;

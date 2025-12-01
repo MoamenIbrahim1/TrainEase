@@ -4,7 +4,10 @@ using System.Text;
 
 namespace TrainEase.Core.Domain.Entities
 {
-    internal class StationMaster
-    {
+    public class StationMaster : User<int>
+    {       
+        public virtual ICollection<Notification> Notfications {  get; set; }
+        public int StationID { get; set; }
+        public Station Station { get; set; }
     }
 }
