@@ -13,7 +13,7 @@ namespace TrainEase.Core.Domain.Entities
         public int NotificationId { get; set; }
 
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-        public virtual ICollection<Ticket> PassengerTickets { get; set; } = new List<PassengerTicket>();
-        public virtual Notification Notifications { get; set; } 
+        public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+        public virtual Notification Notifications { get; set; } = null!;
     }
 }
