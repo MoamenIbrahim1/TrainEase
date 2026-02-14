@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TrainEase.Core.Domain.Common;
+
+namespace TrainEase.Core.Domain.Entities
+{
+    public class Train : BaseEntity
+    {
+        public string? TrainNumber { get; set; }
+        public string? TrainName { get; set; }
+        public string? Type { get; set; }
+        public ICollection<Carriage> Carriages { get; set; } = new HashSet<Carriage>();
+        public ICollection<Schedule> Schedules { get; set; } = new HashSet<Schedule>();
+    }
+}
