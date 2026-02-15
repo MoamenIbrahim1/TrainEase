@@ -2,7 +2,7 @@
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class Notification : BaseAuditableEntity
+    public class Notification : BaseAuditableEntity<int>
     {
         public int UserId { get; set; }
         public User User { get; set; } = null!; // المستلم

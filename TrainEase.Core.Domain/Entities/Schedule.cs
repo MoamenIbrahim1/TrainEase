@@ -2,7 +2,7 @@
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class Schedule : BaseAuditableEntity
+    public class Schedule : BaseAuditableEntity<int>
     {
         public int TrainId { get; set; }
         public Train Train { get; set; } = null!;

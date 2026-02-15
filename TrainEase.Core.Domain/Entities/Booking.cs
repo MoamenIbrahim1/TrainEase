@@ -9,7 +9,7 @@ using TrainEase.Core.Domain.Entities.Enums;
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class Booking : BaseAuditableEntity
+    public class Booking : BaseAuditableEntity<int>
     {
         public int UserId { get; set; }
         public User User { get; set; } = null!;

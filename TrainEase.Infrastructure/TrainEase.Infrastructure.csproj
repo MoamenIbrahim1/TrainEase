@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+<<<<<<< HEAD
     <TargetFramework>net8.0</TargetFramework>
+=======
+    <TargetFramework>net10.0</TargetFramework>
+>>>>>>> 32e68e45544984f05415cf406c43a86f3af8bd2d
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>

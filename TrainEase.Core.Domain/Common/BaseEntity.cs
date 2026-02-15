@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TrainEase.Core.Domain.Common
 {
-    public abstract class BaseAuditableEntity<Tkey>
+    public abstract class BaseEntity<Tkey>
         where Tkey :IEquatable<Tkey>
     {
         public Tkey? Id { get; set; }

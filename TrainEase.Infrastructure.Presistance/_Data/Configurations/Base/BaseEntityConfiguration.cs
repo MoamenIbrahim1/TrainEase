@@ -1,25 +1,26 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Builders; 
 using TrainEase.Core.Domain.Common;
-
 namespace TrainEase.Infrastructure.Presistance._Data.Configurations.Base
 {
-    public class BaseEntityConfiguration<TEntity> : IEntityTypeConfiguration<TEntity>
-     where TEntity : BaseEntity
+    
+    public class BaseEntityConfiguration<TEntity, TKey> : IEntityTypeConfiguration<TEntity>
+        where TEntity : BaseAuditableEntity<TKey> 
+        where TKey : IEquatable<TKey>
     {
         public virtual void Configure(EntityTypeBuilder<TEntity> builder)
         {
-            // Primary Key
-            builder.HasKey(e => e.Id);
+            
+            builder.HasKey(x => x.Id);
 
-            // Audit Properties
-            builder.Property(e => e.CreatedAt)
-                   .HasDefaultValueSql("GETDATE()") // أو DateTime.Now حسب قاعدة البيانات
+            builder.Property(x => x.CreatedAt)
+                   .IsRequired(false); 
+
+            builder.Property(x => x.UpdatedAt)
                    .IsRequired(false);
 
-            builder.Property(e => e.UpdatedAt)
-                   .IsRequired(false);
-
+            builder.Property(x => x.IsDeleted)
+                   .HasDefaultValue(false);
         }
     }
 }
