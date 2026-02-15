@@ -3,7 +3,7 @@ using TrainEase.Core.Domain.Entities.Enums;
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class Payment : BaseEntity
+    public class Payment : BaseAuditableEntity
     {
         public int BookingId { get; set; }
         public Booking Booking { get; set; } = null!;

@@ -2,7 +2,7 @@
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class RouteStation : BaseEntity
+    public class RouteStation : BaseAuditableEntity
     {
         public int RouteId { get; set; }
         public Route Route { get; set; } = null!;

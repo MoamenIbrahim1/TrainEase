@@ -2,7 +2,7 @@
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class Invoice : BaseEntity
+    public class Invoice : BaseAuditableEntity
     {
         public int BookingId { get; set; }
         public Booking Booking { get; set; } = null!;

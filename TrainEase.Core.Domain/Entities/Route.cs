@@ -2,7 +2,7 @@
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class Route : BaseEntity
+    public class Route : BaseAuditableEntity
     {
         public string? RouteName { get; set; }
         public ICollection<RouteStation> RouteStations { get; set; } = new HashSet<RouteStation>();

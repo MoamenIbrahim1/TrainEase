@@ -4,11 +4,10 @@ using System.Text;
 
 namespace TrainEase.Core.Domain.Common
 {
-    public abstract class BaseEntity
+    public abstract class BaseAuditableEntity<Tkey>
+        where Tkey :IEquatable<Tkey>
     {
-        public int Id { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public bool IsDeleted { get; set; } = false;
+        public Tkey? Id { get; set; }
+       
     }
 }

@@ -7,7 +7,7 @@ using TrainEase.Core.Domain.Common;
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class Train : BaseEntity
+    public class Train : BaseAuditableEntity
     {
         public string? TrainNumber { get; set; }
         public string? TrainName { get; set; }
