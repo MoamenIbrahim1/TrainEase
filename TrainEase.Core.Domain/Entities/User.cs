@@ -1,9 +1,10 @@
-﻿using TrainEase.Core.Domain.Common;
+﻿using Microsoft.AspNetCore.Identity;
+using TrainEase.Core.Domain.Common;
 using TrainEase.Core.Domain.Entities.Enums;
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class User : BaseEntity
+    public class User : IdentityUser
     {
         public string? FullName { get; set; }
         public string? Email { get; set; }

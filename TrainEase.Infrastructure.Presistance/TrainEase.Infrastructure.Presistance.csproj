@@ -1,22 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<Folder Include="_Data\Configurations\" />
-		<Folder Include="_Data\GenericRepository\" />
-		<Folder Include="_Data\Migrations\" />
-		<Folder Include="_Data\UnitOfWork\" />
-		<Folder Include="_Data\Seeds\" />
-	</ItemGroup>
+  <ItemGroup>
+    <Folder Include="_Data\Configurations\Enities\" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.3" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TrainEase.Core.Application\TrainEase.Core.Application.csproj" />
+  </ItemGroup>
 
 </Project>
