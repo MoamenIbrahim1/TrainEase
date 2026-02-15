@@ -14,5 +14,4 @@
   </Folder>
   <Folder Name="/src/UI/" />
   <Folder Name="/test/" />
-  <Project Path="TrainEase.Core.Domain/TrainEase.Core.Domain.csproj" />
 </Solution>
