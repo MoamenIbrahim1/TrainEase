@@ -6,13 +6,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrainEase.Core.Domain.Entities;
+using TrainEase.Infrastructure.Presistance._Data.Configurations.Base;
 
 namespace TrainEase.Infrastructure.Presistance._Data.Configurations.Enities
 {
-    public class RouteStationConfiguration : IEntityTypeConfiguration<RouteStation>
+    public class RouteStationConfiguration : BaseEntityConfiguration<RouteStation,int>
     {
-        public void Configure(EntityTypeBuilder<RouteStation> builder)
+        public override void Configure(EntityTypeBuilder<RouteStation> builder)
         {
+            base.Configure(builder);
+
             builder.HasKey(rs => new { rs.RouteId, rs.StationId }); // Composite Key لو مش مستخدم BaseEntity ID
 
             builder.HasOne(rs => rs.Route)

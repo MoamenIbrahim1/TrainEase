@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -6,21 +7,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TrainEase.Core.Domain.Contracts;
+using TrainEase.Core.Domain.Entities;
 using TrainEase.Infrastructure.Presistance._Data;
+using TrainEase.Infrastructure.Presistance._Identity;
 using TrainEase.Infrastructure.Presistance.UnitOfWork;
-
-namespace TrainEase.Infrastructure
+namespace TrainEase.Infrastructure.Presistance
 {
     public static class InfrastructureDependencies
     {
-        public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
         {
-            
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            #region TrainEaseContext
 
-          
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddDbContext<TrainEaseContext>(options =>
+                options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("TrainEaseDbContext")));
+
+            #endregion
+
+            #region IdentityContext
+            services.AddDbContext<AppDbContext>(options =>
+              options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("IdentityContext"))); 
+            #endregion
+
+            services.AddScoped<IUnitOfWork, AppUnitOfWork>();
+
 
             return services;
         }

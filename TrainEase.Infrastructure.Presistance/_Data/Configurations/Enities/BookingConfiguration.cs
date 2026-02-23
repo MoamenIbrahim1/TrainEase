@@ -6,13 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrainEase.Core.Domain.Entities;
+using TrainEase.Infrastructure.Presistance._Data.Configurations.Base;
 
 namespace TrainEase.Infrastructure.Presistance._Data.Configurations.Enities
 {
-    public class BookingConfiguration : IEntityTypeConfiguration<Booking>
+    public class BookingConfiguration : BaseEntityConfiguration<Booking,int>
     {
-        public void Configure(EntityTypeBuilder<Booking> builder)
+        public override void Configure(EntityTypeBuilder<Booking> builder)
         {
+            base.Configure(builder);
             builder.Property(b => b.TotalAmount).HasColumnType("decimal(18,2)");
 
             // علاقة 1-to-1 مع الـ Invoice

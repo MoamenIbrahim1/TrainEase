@@ -7,9 +7,10 @@ namespace TrainEase.Core.Domain.Entities
     public class User : IdentityUser
     {
         public string? FullName { get; set; }
+        public string? NationalId { get; set; }
         public UserRole Role { get; set; } // Admin, Passenger, StationMaster
 
-        
+         
         public ICollection<Booking> Bookings { get; set; } = new HashSet<Booking>();
         public ICollection<Notification> Notifications { get; set; } = new HashSet<Notification>();
     }

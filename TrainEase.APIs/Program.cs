@@ -1,4 +1,5 @@
-
+using TrainEase.APIs.Extensions;
+using TrainEase.Infrastructure.Presistance;
 namespace TrainEase.APIs
 {
     public class Program
@@ -13,6 +14,9 @@ namespace TrainEase.APIs
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddPersistenceServices(builder.Configuration);
+            builder.Services.AddIdentityServices(builder.Configuration);
+
 
 
             var app = builder.Build();

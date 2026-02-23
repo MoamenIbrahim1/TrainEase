@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace TrainEase.Core.Domain.Common
 {
-    public abstract class BaseAuditableEntity<TKey>:BaseEntity<TKey>
-        where TKey:IEquatable<TKey>
+    public abstract class BaseAuditableEntity<TKey> : BaseEntity<TKey>
+        where TKey : IEquatable<TKey>
     {
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

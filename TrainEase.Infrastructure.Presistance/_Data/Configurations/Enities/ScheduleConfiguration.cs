@@ -6,13 +6,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrainEase.Core.Domain.Entities;
+using TrainEase.Infrastructure.Presistance._Data.Configurations.Base;
 
 namespace TrainEase.Infrastructure.Presistance._Data.Configurations.Enities
 {
-    public class ScheduleConfiguration : IEntityTypeConfiguration<Schedule>
+    public class ScheduleConfiguration : BaseEntityConfiguration<Schedule,int>
     {
-        public void Configure(EntityTypeBuilder<Schedule> builder)
+        public override void Configure(EntityTypeBuilder<Schedule> builder)
         {
+            base.Configure(builder);
+
             // ربط محطة القيام
             builder.HasOne(s => s.SourceStation)
                    .WithMany()

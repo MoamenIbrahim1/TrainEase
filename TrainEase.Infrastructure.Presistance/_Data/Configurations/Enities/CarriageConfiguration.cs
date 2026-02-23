@@ -6,13 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrainEase.Core.Domain.Entities;
+using TrainEase.Infrastructure.Presistance._Data.Configurations.Base;
 
 namespace TrainEase.Infrastructure.Presistance._Data.Configurations.Enities
 {
-    public class CarriageConfiguration : IEntityTypeConfiguration<Carriage>
+    public class CarriageConfiguration : BaseEntityConfiguration<Carriage, int>
     {
-        public void Configure(EntityTypeBuilder<Carriage> builder)
+        public override void Configure(EntityTypeBuilder<Carriage> builder)
         {
+            base.Configure(builder);
             builder.Property(c => c.CarriageNumber).HasMaxLength(20);
             builder.Property(c => c.ClassType).HasMaxLength(50);
 

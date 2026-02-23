@@ -12,12 +12,12 @@ using TrainEase.Infrastructure.Presistance.Repostories;
 
 namespace TrainEase.Infrastructure.Presistance.UnitOfWork
 {
-    internal class UnitOfWork : IUnitOfWork
+    internal class AppUnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;
         private readonly ConcurrentDictionary<string, object> _repositories;
 
-        public UnitOfWork(AppDbContext context)
+        public AppUnitOfWork(AppDbContext context)
         {
             _context = context;
             _repositories = new();
@@ -36,6 +36,11 @@ namespace TrainEase.Infrastructure.Presistance.UnitOfWork
             // GetOrAdd بتشوف لو الـ Repository موجود بترجعه، لو مش موجود بتعمل New وتضيفه
             return (IGenericRepostorie<TEntity, Tkey>)_repositories.GetOrAdd(typeName,
                 _ => new GenericRepository<TEntity, Tkey>(_context));
+        }
+
+        IGenericRepository<TEntity, Tkey> IUnitOfWork.GetRepository<TEntity, Tkey>()
+        {
+            throw new NotImplementedException();
         }
     }
 }

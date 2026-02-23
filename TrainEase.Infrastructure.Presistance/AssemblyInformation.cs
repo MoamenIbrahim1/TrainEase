@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TrainEase.Infrastructure.Presistance
+﻿namespace LinkDev.Talabat.Infrastructure.Persistence
 {
-    public class AssemblyInformation
+    public static class AssemblyInformation
     {
     }
 }

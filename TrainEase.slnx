@@ -1,16 +1,17 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/APIs/">
-    <Project Path="TrainEase.APIs/TrainEase.APIs.csproj" Id="74e0bc55-f22a-46fd-aa66-773ed5ce1481" />
+    <Project Path="TrainEase.APIs.Controllers/TrainEase.APIs.Controllers.csproj" Id="4202c267-2dbc-43c0-ad43-f029bd65dcd3" />
+    <Project Path="TrainEase.APIs/TrainEase.APIs.csproj" />
   </Folder>
   <Folder Name="/src/Core/">
-    <Project Path="TrainEase.Core.Application.Abstrations/TrainEase.Core.Application.Abstrations.csproj" Id="0a5c2ea2-851b-42e8-b3c9-4359be6240f0" />
-    <Project Path="TrainEase.Core.Application/TrainEase.Core.Application.csproj" Id="af914feb-9ad3-4a00-a3a3-229cada76d0e" />
-    <Project Path="TrainEase.Core.Domain/TrainEase.Core.Domain.csproj" Id="e69403bb-f6ce-417c-b71a-e15d9b41f7a0" />
+    <Project Path="TrainEase.Core.Application.Abstrations/TrainEase.Core.Application.Abstrations.csproj" />
+    <Project Path="TrainEase.Core.Application/TrainEase.Core.Application.csproj" />
+    <Project Path="TrainEase.Core.Domain/TrainEase.Core.Domain.csproj" />
   </Folder>
   <Folder Name="/src/Infrastructure/">
-    <Project Path="TrainEase.Infrastructure.Presistance/TrainEase.Infrastructure.Presistance.csproj" Id="c3464c10-d518-4045-8e49-0a349fff75c9" />
-    <Project Path="TrainEase.Infrastructure/TrainEase.Infrastructure.csproj" Id="7f880e19-970f-470e-93b4-b8f7d083c3aa" />
+    <Project Path="TrainEase.Infrastructure.Presistance/TrainEase.Infrastructure.Presistance.csproj" />
+    <Project Path="TrainEase.Infrastructure/TrainEase.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/src/UI/" />
   <Folder Name="/test/" />

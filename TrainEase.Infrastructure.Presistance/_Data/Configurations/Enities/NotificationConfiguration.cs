@@ -6,13 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrainEase.Core.Domain.Entities;
+using TrainEase.Infrastructure.Presistance._Data.Configurations.Base;
 
 namespace TrainEase.Infrastructure.Presistance._Data.Configurations.Enities
 {
-    public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
+    public class NotificationConfiguration : BaseEntityConfiguration<Notification,int>
     {
-        public void Configure(EntityTypeBuilder<Notification> builder)
+        public override void Configure(EntityTypeBuilder<Notification> builder)
         {
+
+            base.Configure(builder);
+
             builder.Property(n => n.Message).IsRequired().HasMaxLength(500);
 
             // المستلم
