@@ -5,9 +5,9 @@ namespace TrainEase.Core.Domain.Entities
     public class Carriage : BaseAuditableEntity<int>
     {
         public int TrainId { get; set; }
-        public Train Train { get; set; } = null!;
+        public virtual Train Train { get; set; } = null!;
         public string? CarriageNumber { get; set; }
         public string? ClassType { get; set; } // First, Second
-        public ICollection<Seat> Seats { get; set; } = new HashSet<Seat>();
+        public virtual ICollection<Seat> Seats { get; set; } = new HashSet<Seat>();
     }
 }

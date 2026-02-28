@@ -9,6 +9,6 @@ namespace TrainEase.Core.Domain.Entities
     {       
         public virtual ICollection<Notification> Notfications {  get; set; }
         public int StationID { get; set; }
-        public Station Station { get; set; }
+        public virtual Station Station { get; set; }
     }
 }

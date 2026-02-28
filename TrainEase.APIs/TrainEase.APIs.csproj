@@ -8,12 +8,19 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\TrainEase.APIs.Controllers\TrainEase.APIs.Controllers.csproj" />
+	  <ProjectReference Include="..\TrainEase.Core.Application.Abstrations\TrainEase.Core.Application.Abstrations.csproj" />
+	  <ProjectReference Include="..\TrainEase.Core.Application\TrainEase.Core.Application.csproj" />
 	  <ProjectReference Include="..\TrainEase.Infrastructure.Presistance\TrainEase.Infrastructure.Presistance.csproj" />
+	  <ProjectReference Include="..\TrainEase.Infrastructure\TrainEase.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

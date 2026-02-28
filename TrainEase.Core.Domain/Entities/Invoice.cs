@@ -5,7 +5,7 @@ namespace TrainEase.Core.Domain.Entities
     public class Invoice : BaseAuditableEntity<int>
     {
         public int BookingId { get; set; }
-        public Booking Booking { get; set; } = null!;
+        public virtual Booking Booking { get; set; } = null!;
         public string? InvoiceNumber { get; set; }
         public decimal Tax { get; set; }
         public decimal Total { get; set; }

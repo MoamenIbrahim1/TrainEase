@@ -11,7 +11,7 @@ namespace TrainEase.Core.Domain.Entities
         public UserRole Role { get; set; } // Admin, Passenger, StationMaster
 
          
-        public ICollection<Booking> Bookings { get; set; } = new HashSet<Booking>();
-        public ICollection<Notification> Notifications { get; set; } = new HashSet<Notification>();
+        public virtual ICollection<Booking> Bookings { get; set; } = new HashSet<Booking>();
+        public virtual ICollection<Notification> Notifications { get; set; } = new HashSet<Notification>();
     }
 }

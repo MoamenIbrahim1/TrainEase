@@ -12,7 +12,7 @@ namespace TrainEase.APIs.Extensions
     {
     public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<JwtSettings>(configuration.GetSection("jwtSettingss"));
+            services.Configure<JwtSettings>(configuration.GetSection("jwtSettings"));
           services.AddIdentity<User, IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>();
 

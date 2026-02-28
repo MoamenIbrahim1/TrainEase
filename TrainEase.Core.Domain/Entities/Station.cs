@@ -11,6 +11,6 @@ namespace TrainEase.Core.Domain.Entities
     {
         public string? Name { get; set; }
         public string? City { get; set; }
-        public ICollection<RouteStation> RouteStations { get; set; } = new HashSet<RouteStation>();
+        public virtual ICollection<RouteStation> RouteStations { get; set; } = new HashSet<RouteStation>();
     }
 }

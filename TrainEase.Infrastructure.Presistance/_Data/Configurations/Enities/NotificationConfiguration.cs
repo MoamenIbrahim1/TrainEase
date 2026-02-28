@@ -19,12 +19,11 @@ namespace TrainEase.Infrastructure.Presistance._Data.Configurations.Enities
 
             builder.Property(n => n.Message).IsRequired().HasMaxLength(500);
 
-            // المستلم
             builder.HasOne(n => n.User)
-                   .WithMany(u => u.Notifications)
-                   .HasForeignKey(n => n.UserId);
+        .WithMany(u => u.Notifications)
+        .HasForeignKey(n => n.UserId)
+        .OnDelete(DeleteBehavior.Restrict);
 
-            // الراسل (Station Master)
             builder.HasOne(n => n.SentByUser)
                    .WithMany()
                    .HasForeignKey(n => n.SentByUserId)

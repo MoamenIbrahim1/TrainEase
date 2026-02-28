@@ -10,6 +10,7 @@ using TrainEase.Core.Application.Abstrations.Services;
 
 namespace TrainEase.APIs.Controllers.Controllers.Account
 {
+
     public class AccountController(IServiceManager serviceManger) : BaseApiController
     {
         [HttpPost("Login")]

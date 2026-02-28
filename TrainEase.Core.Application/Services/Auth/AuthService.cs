@@ -71,6 +71,7 @@ namespace TrainEase.Core.Application.NewFolder.Auth
 
             return response;
         }
+
         public async Task<bool> EmailExists(string email)
         {
             return await _userManager.FindByEmailAsync(email) is not null;

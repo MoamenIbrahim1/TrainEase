@@ -5,15 +5,14 @@ namespace TrainEase.Core.Domain.Entities
     public class Schedule : BaseAuditableEntity<int>
     {
         public int TrainId { get; set; }
-        public Train Train { get; set; } = null!;
+        public virtual Train Train { get; set; } = null!;
         public int RouteId { get; set; }
-        public Route Route { get; set; } = null!;
+        public virtual Route Route { get; set; } = null!;
         public DateTime DepartureTime { get; set; }
         public DateTime ArrivalTime { get; set; }
         public int SourceStationId { get; set; }
-        public Station SourceStation { get; set; } = null!;
-
+        public virtual Station SourceStation { get; set; } = null!;
         public int DestinationStationId { get; set; }
-        public Station DestinationStation { get; set; } = null!;
+        public virtual Station DestinationStation { get; set; } = null!;
     }
 }
