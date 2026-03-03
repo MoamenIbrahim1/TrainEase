@@ -1,10 +1,12 @@
+using Microsoft.AspNetCore.Identity;
 using TrainEase.APIs.Extensions;
 using TrainEase.Infrastructure.Presistance;
+using TrainEase.Infrastructure.Presistance.Seeding;
 namespace TrainEase.APIs
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public async static Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -28,15 +30,20 @@ namespace TrainEase.APIs
 
 
             var app = builder.Build();
+            // Seed Roles
+            using (var scope = app.Services.CreateScope())
+            {
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                await IdentitySeeder.SeedRolesAsync(roleManager);
+            }
 
             // Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())
             //{
-                app.UseSwagger();
+            app.UseSwagger();
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrainEase API V1");
-                    c.RoutePrefix = string.Empty;
                 });
             //}
 
