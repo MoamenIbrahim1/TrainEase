@@ -8,10 +8,15 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TrainEase.Core.Application.Abstrations\TrainEase.Core.Application.Abstrations.csproj" />
+    <ProjectReference Include="..\TrainEase.Infrastructure.Presistance\TrainEase.Infrastructure.Presistance.csproj" />
   </ItemGroup>
 
 </Project>

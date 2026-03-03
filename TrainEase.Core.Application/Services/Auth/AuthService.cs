@@ -10,6 +10,7 @@ using TrainEase.Core.Application.Abstrations.Services;
 using TrainEase.Core.Application.Exceptions;
 using TrainEase.Core.Application.Services.Auth;
 using TrainEase.Core.Domain.Entities;
+using TrainEase.Core.Domain.Entities.Enums;
 
 namespace TrainEase.Core.Application.NewFolder.Auth
 {
@@ -53,13 +54,15 @@ namespace TrainEase.Core.Application.NewFolder.Auth
                 NationalId = model.NationalId,
                 Email = model.Email,
                 UserName = model.Email,
-                PhoneNumber = model.PhoneNumber
+                PhoneNumber = model.PhoneNumber,
+                Role = UserRole.Passenger,
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
 
             if (!result.Succeeded) throw new ValidationException() { Errors = result.Errors.Select(E => E.Description) };
 
+            await _userManager.AddToRoleAsync(user, UserRole.Passenger.ToString());
             var response = new UserDto
             {
                 Id = user.Id,
