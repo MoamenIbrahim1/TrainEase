@@ -1,24 +1,23 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading.Tasks;
 using TrainEase.Core.Domain.Common;
+using TrainEase.Core.Domain.Entities.Enums;
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class Booking : BaseEntity<int>
-    {
-        public int TicketCount { get; set; }
-        public DateTime BookingDate { get; set; }
-        public decimal TotalPrice { get; set; }
+    public class Booking : BaseAuditableEntity<int>{
+        public string? UserId { get; set; }
+        public virtual User User { get; set; } = null!;
+        public decimal TotalAmount { get; set; }
+        public BookingStatus Status { get; set; }
 
-        public int PassengerId { get; set; }
-        public int TrainId { get; set; }
-        public int ScheduleId { get; set; }
-
-     
-        public virtual Passenger Passenger { get; set; } = default!;
-        public virtual Train Train { get; set; } = default!;
-        public virtual Schedule Schedule { get; set; } = default!;
-               
-        public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
-        public virtual ICollection<Seat> Seats { get; set; } = new List<Seat>();
+        public virtual ICollection<Ticket> Tickets { get; set; } = new HashSet<Ticket>();
+        public virtual Payment? Payment { get; set; } 
+        public virtual Invoice? Invoice { get; set; }
+        public virtual Refund? Refund { get; set; }
     }
 }

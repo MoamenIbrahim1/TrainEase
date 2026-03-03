@@ -1,6 +1,12 @@
-﻿namespace TrainEase.Core.Domain.Entities
+﻿using TrainEase.Core.Domain.Common;
+
+namespace TrainEase.Core.Domain.Entities
 {
-    public class Seat
+    public class Seat : BaseAuditableEntity<int>
     {
+        public int CarriageId { get; set; }
+        public virtual Carriage Carriage { get; set; } = null!;
+        public string? SeatNumber { get; set; }
+        public bool IsAvailable { get; set; } = true;
     }
 }

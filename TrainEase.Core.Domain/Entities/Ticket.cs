@@ -2,18 +2,14 @@
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class Ticket : BaseEntity<int>
+    public class Ticket : BaseAuditableEntity<int>
     {
-       
+        public int BookingId { get; set; }
+        public virtual Booking Booking { get; set; } = null!;
+        public int SeatId { get; set; }
+        public virtual Seat Seat { get; set; } = null!;
+        public string UserId { get; set; }
+        public virtual User User { get; set; } = null!;
         public decimal Price { get; set; }
-        public required string TicketType { get; set; } 
-
-
-        public int BookId { get; set; }
-        public int PassengerId { get; set; }
-
-        public virtual Booking Booking { get; set; } = default!;
-        public virtual Passenger Passenger { get; set; } = default!;
-
     }
 }
