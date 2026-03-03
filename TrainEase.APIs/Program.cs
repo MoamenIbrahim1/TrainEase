@@ -33,8 +33,17 @@ namespace TrainEase.APIs
             // Seed Roles
             using (var scope = app.Services.CreateScope())
             {
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                await IdentitySeeder.SeedRolesAsync(roleManager);
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                    await IdentitySeeder.SeedRolesAsync(roleManager);
+                }
+                catch (Exception ex)
+                {
+                    // هيطبع الخطأ في الـ Console بس مش هيوقع البرنامج
+                    Console.WriteLine($"Error during seeding: {ex.Message}");
+                }
             }
 
             // Configure the HTTP request pipeline.
@@ -44,7 +53,10 @@ namespace TrainEase.APIs
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrainEase API V1");
+
+                    c.RoutePrefix = string.Empty;
                 });
+            
             //}
 
             app.UseHttpsRedirection();
