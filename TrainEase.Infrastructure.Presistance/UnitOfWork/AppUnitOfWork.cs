@@ -27,14 +27,14 @@ namespace TrainEase.Infrastructure.Presistance.UnitOfWork
 
         public async ValueTask DisposeAsync() => await _context.DisposeAsync();
 
-        public IGenericRepostorie<TEntity, Tkey> GetRepository<TEntity, Tkey>()
+        public IGenericRepository<TEntity, Tkey> GetRepository<TEntity, Tkey>()
             where TEntity : BaseAuditableEntity<Tkey>
             where Tkey : IEquatable<Tkey>
         {
             var typeName = typeof(TEntity).Name;
 
             // GetOrAdd بتشوف لو الـ Repository موجود بترجعه، لو مش موجود بتعمل New وتضيفه
-            return (IGenericRepostorie<TEntity, Tkey>)_repositories.GetOrAdd(typeName,
+            return (IGenericRepository<TEntity, Tkey>)_repositories.GetOrAdd(typeName,
                 _ => new GenericRepository<TEntity, Tkey>(_context));
         }
 

@@ -22,8 +22,11 @@ namespace TrainEase.APIs
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
-                    policy.WithOrigins("http://127.0.0.1:5500")
-                          .AllowAnyHeader()
+                    policy.WithOrigins(
+                 "http://127.0.0.1:5500",      // Frontend
+                 "http://192.168.47.1:5000"    // Mobile
+                    )
+                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
             });
@@ -50,13 +53,13 @@ namespace TrainEase.APIs
             //if (app.Environment.IsDevelopment())
             //{
             app.UseSwagger();
-                app.UseSwaggerUI(c =>
-                {
-                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrainEase API V1");
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrainEase API V1");
 
-                    c.RoutePrefix = string.Empty;
-                });
-            
+                c.RoutePrefix = string.Empty;
+            });
+
             //}
 
             app.UseHttpsRedirection();
