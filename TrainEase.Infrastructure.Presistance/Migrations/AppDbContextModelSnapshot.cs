@@ -190,7 +190,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Booking");
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Carriage", b =>
@@ -227,7 +227,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("TrainId");
 
-                    b.ToTable("Carriage");
+                    b.ToTable("Carriages");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Invoice", b =>
@@ -267,7 +267,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.HasIndex("BookingId")
                         .IsUnique();
 
-                    b.ToTable("Invoice");
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Notification", b =>
@@ -310,7 +310,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notification");
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Payment", b =>
@@ -350,7 +350,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.HasIndex("BookingId")
                         .IsUnique();
 
-                    b.ToTable("Payment");
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Refund", b =>
@@ -384,7 +384,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.HasIndex("BookingId")
                         .IsUnique();
 
-                    b.ToTable("Refund");
+                    b.ToTable("Refunds");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Route", b =>
@@ -404,12 +404,15 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.Property<string>("RouteName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Route");
+                    b.ToTable("Routes");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.RouteStation", b =>
@@ -431,6 +434,9 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<int>("Sequence")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -438,7 +444,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("StationId");
 
-                    b.ToTable("RouteStation");
+                    b.ToTable("RouteStations");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Schedule", b =>
@@ -466,6 +472,9 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("RouteId")
                         .HasColumnType("int");
 
@@ -488,7 +497,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("TrainId");
 
-                    b.ToTable("Schedule");
+                    b.ToTable("Schedules");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Seat", b =>
@@ -521,7 +530,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("CarriageId");
 
-                    b.ToTable("Seat");
+                    b.ToTable("Seats");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Station", b =>
@@ -549,7 +558,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Station");
+                    b.ToTable("Stations");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Ticket", b =>
@@ -592,7 +601,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Ticket");
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Train", b =>
@@ -623,7 +632,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Train");
+                    b.ToTable("Trains");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.User", b =>

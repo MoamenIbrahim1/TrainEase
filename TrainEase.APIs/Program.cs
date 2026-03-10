@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using TrainEase.APIs.Extensions;
+using TrainEase.Core.Application;
 using TrainEase.Infrastructure.Presistance;
 using TrainEase.Infrastructure.Presistance.Seeding;
 namespace TrainEase.APIs
@@ -16,6 +17,7 @@ namespace TrainEase.APIs
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddApplicationServices(builder.Configuration);
             builder.Services.AddPersistenceServices(builder.Configuration);
             builder.Services.AddIdentityServices(builder.Configuration);
             builder.Services.AddCors(options =>

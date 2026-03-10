@@ -38,9 +38,6 @@ namespace TrainEase.Infrastructure.Presistance.UnitOfWork
                 _ => new GenericRepository<TEntity, Tkey>(_context));
         }
 
-        IGenericRepository<TEntity, Tkey> IUnitOfWork.GetRepository<TEntity, Tkey>()
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }

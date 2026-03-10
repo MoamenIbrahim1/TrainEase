@@ -11,6 +11,7 @@ namespace TrainEase.Core.Domain.Contracts
         where TEntity : BaseAuditableEntity<TKey>
         where TKey : IEquatable<TKey>
     {
+        public IQueryable<TEntity> GetQueryable();
         Task<IEnumerable<TEntity>> GetAllAsync(bool withTracking = false);
         Task<TEntity?> GetAsync(TKey id);
         Task AddAsync(TEntity entity);

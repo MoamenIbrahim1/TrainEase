@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TrainEase.Core.Application.Abstrations.Services;
 using TrainEase.Core.Application.Services;
+using TrainEase.Core.Application.Services.Journey;
 using TrainEase.Core.Domain.Contracts;
 using TrainEase.Core.Domain.Entities;
 using TrainEase.Infrastructure.Presistance._Data;
@@ -33,8 +34,7 @@ namespace TrainEase.Infrastructure.Presistance
             #endregion
 
             services.AddScoped<IUnitOfWork, AppUnitOfWork>();
-            services.AddScoped<IServiceManager, ServiceManager>();
-
+            
             return services;
         }
     }
