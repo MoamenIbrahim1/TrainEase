@@ -15,38 +15,36 @@ using TrainEase.Core.Domain.Entities.Enums;
 namespace TrainEase.Core.Application.NewFolder.Auth
 {
     public class AuthService(
-        IOptions<JwtSettings>jwtSettings,
-        UserManager<User> _userManager, SignInManager<User> _signInManager) : IAuthService
+        IOptions<JwtSettings> jwtSettings,
+        UserManager<User> userManager,
+        SignInManager<User> signInManager) : IAuthService
     {
         private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+        private readonly UserManager<User> _userManager = userManager;
+        private readonly SignInManager<User> _signInManager = signInManager;
+
         public async Task<UserDto> LoginAsync(LoginDto model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
-            if (user == null)
+
+            if (user is null)
                 throw new UnAuthorizedException("Invalid email or password");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
-            if (result.IsNotAllowed) throw new UnAuthorizedException("Account not confirmed yet.");
+            if (result.IsNotAllowed)
+                throw new UnAuthorizedException("Account not confirmed yet.");
 
-            if (!result.Succeeded) throw new UnAuthorizedException("Invalid Login.");
+            if (!result.Succeeded)
+                throw new UnAuthorizedException("Invalid login.");
 
-            var response = new UserDto
-            {
-                Id = user.Id,
-                FullName = user.FullName!,
-                NationalId = user.NationalId!,
-                Email = user.Email!,
-                Token = await GenerateTokenAsync(user)
-            };
-            return response;
-
+            return await CreateUserDtoAsync(user);
         }
 
         public async Task<UserDto> RegisterAsync(RegisterDto model)
         {
             if (await EmailExists(model.Email))
-                throw new BadHttpRequestException("This Email is already in use.");
+                throw new BadHttpRequestException("This email is already in use.");
 
             var user = new User
             {
@@ -55,24 +53,20 @@ namespace TrainEase.Core.Application.NewFolder.Auth
                 Email = model.Email,
                 UserName = model.Email,
                 PhoneNumber = model.PhoneNumber,
-                Role = UserRole.Passenger,
+                Role = UserRole.Passenger
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
 
-            if (!result.Succeeded) throw new ValidationException() { Errors = result.Errors.Select(E => E.Description) };
+            if (!result.Succeeded)
+                throw new ValidationException
+                {
+                    Errors = result.Errors.Select(e => e.Description)
+                };
 
             await _userManager.AddToRoleAsync(user, UserRole.Passenger.ToString());
-            var response = new UserDto
-            {
-                Id = user.Id,
-                FullName = user.FullName!,
-                NationalId = user.NationalId!,
-                Email = user.Email!,
-                Token = await GenerateTokenAsync(user)
-            };
 
-            return response;
+            return await CreateUserDtoAsync(user);
         }
 
         public async Task<bool> EmailExists(string email)
@@ -80,35 +74,52 @@ namespace TrainEase.Core.Application.NewFolder.Auth
             return await _userManager.FindByEmailAsync(email) is not null;
         }
 
-        private async Task<string> GenerateTokenAsync(User user)
+        private async Task<UserDto> CreateUserDtoAsync(User user)
         {
-            // Payload claims for the token  
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return new UserDto
+            {
+                Id = user.Id,
+                FullName = user.FullName!,
+                NationalId = user.NationalId!,
+                Email = user.Email!,
+                Token = await GenerateTokenAsync(user, roles),
+                Role = roles.FirstOrDefault() ?? string.Empty
+            };
+        }
+
+        private async Task<string> GenerateTokenAsync(User user, IList<string> roles)
+        {
             var userClaims = await _userManager.GetClaimsAsync(user);
 
-            var roles = await _userManager.GetRolesAsync(user);
-            var rolesAsClaims = new List<Claim>();
-            foreach (var role in roles)
-                rolesAsClaims.Add(new Claim(ClaimTypes.Role, role.ToString()));
+            var rolesAsClaims = roles
+                .Select(role => new Claim(ClaimTypes.Role, role))
+                .ToList();
 
-
-            var Claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.PrimarySid, user.Id),
-            new Claim(ClaimTypes.Email, user.Email!),
-            new Claim(ClaimTypes.GivenName, user.FullName!),
-        }.Union(userClaims).Union(rolesAsClaims);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.PrimarySid, user.Id),
+                new Claim(ClaimTypes.Email, user.Email!),
+                new Claim(ClaimTypes.Name, user.FullName!),
+                new Claim(ClaimTypes.GivenName, user.FullName!)
+            }
+            .Union(userClaims)
+            .Union(rolesAsClaims);
 
             var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
-            var signInCredentials = new SigningCredentials(authKey, SecurityAlgorithms.HmacSha256);
+            var signingCredentials = new SigningCredentials(authKey, SecurityAlgorithms.HmacSha256);
 
-            var tokenObj = new JwtSecurityToken(
+            var token = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 expires: DateTime.UtcNow.AddMinutes(_jwtSettings.DurationInMinutes),
-                claims: Claims,
-                signingCredentials: signInCredentials
+                claims: claims,
+                signingCredentials: signingCredentials
             );
-            return new JwtSecurityTokenHandler().WriteToken(tokenObj);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

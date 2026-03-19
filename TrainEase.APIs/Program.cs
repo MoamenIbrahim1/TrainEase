@@ -3,6 +3,7 @@ using TrainEase.APIs.Extensions;
 using TrainEase.Core.Application;
 using TrainEase.Infrastructure.Presistance;
 using TrainEase.Infrastructure.Presistance.Seeding;
+
 namespace TrainEase.APIs
 {
     public class Program
@@ -11,31 +12,28 @@ namespace TrainEase.APIs
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddApplicationServices(builder.Configuration);
             builder.Services.AddPersistenceServices(builder.Configuration);
             builder.Services.AddIdentityServices(builder.Configuration);
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowFrontend", policy =>
                 {
                     policy.WithOrigins(
-                 "http://127.0.0.1:5500",      // Frontend
-                 "http://192.168.47.1:5000"    // Mobile
+                        "http://127.0.0.1:5500",
+                        "http://192.168.47.1:5000"
                     )
-                           .AllowAnyHeader()
-                          .AllowAnyMethod();
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
                 });
             });
 
-
             var app = builder.Build();
-            // Seed Roles
+
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -46,29 +44,34 @@ namespace TrainEase.APIs
                 }
                 catch (Exception ex)
                 {
-                    // هيطبع الخطأ في الـ Console بس مش هيوقع البرنامج
                     Console.WriteLine($"Error during seeding: {ex.Message}");
                 }
             }
 
-            // Configure the HTTP request pipeline.
-            //if (app.Environment.IsDevelopment())
-            //{
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrainEase API V1");
-
                 c.RoutePrefix = string.Empty;
             });
 
-            //}
+            // يخلي /swagger و /swagger/index.html يشتغلوا برضه
+            app.MapGet("/swagger", context =>
+            {
+                context.Response.Redirect("/");
+                return Task.CompletedTask;
+            });
+
+            app.MapGet("/swagger/index.html", context =>
+            {
+                context.Response.Redirect("/");
+                return Task.CompletedTask;
+            });
 
             app.UseHttpsRedirection();
             app.UseCors("AllowFrontend");
             app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 
