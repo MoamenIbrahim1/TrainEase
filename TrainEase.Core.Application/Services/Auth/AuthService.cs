@@ -45,7 +45,7 @@ namespace TrainEase.Core.Application.NewFolder.Auth
 
         public async Task<UserDto> RegisterAsync(RegisterDto model)
         {
-            if (EmailExists(model.Email).Result)
+            if (await EmailExists(model.Email))
                 throw new BadHttpRequestException("This Email is already in use.");
 
             var user = new User
