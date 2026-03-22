@@ -13,7 +13,7 @@ using TrainEase.Core.Domain.Entities.Enums;
 
 namespace TrainEase.Core.Application.Services.Admin
 {
-    public class AdminService(UserManager<User> _userManager, IGenericRepository<Station, int> _stationRepository) : IAdminService
+    public class AdminService(UserManager<User> _userManager, IUnitOfWork _unitOfWork) : IAdminService
     {
         public async Task<StationMasterDto> AssignStationMasterAsync(CreateStationMasterDto stationMasterDto)
         {
@@ -43,7 +43,7 @@ namespace TrainEase.Core.Application.Services.Admin
             await _userManager.AddToRoleAsync(stationMaster, UserRole.StationMaster.ToString());
 
             var role = await _userManager.GetRolesAsync(stationMaster);
-            var station = await _stationRepository.GetAsync(stationMaster.StationId??0);
+            var station = await _unitOfWork.GetRepository<Station, int>().GetAsync(stationMaster.StationId??0);
             return new StationMasterDto
             {
                 Name = stationMaster.FullName,
@@ -55,6 +55,23 @@ namespace TrainEase.Core.Application.Services.Admin
             };
         }
 
+        public async Task<bool> RemoveStationMasterAsync(string stationMasterId)
+        {
+            var stationMaster =  await _userManager.FindByIdAsync(stationMasterId);
+            if (stationMaster == null || stationMaster.Role != UserRole.StationMaster)
+                throw new NotFoundException("Station master not found.", stationMasterId);
+
+            var result = await _userManager.DeleteAsync(stationMaster);
+            if (!result.Succeeded)
+            {
+                throw new ValidationException
+                {
+                    Errors = result.Errors.Select(e => e.Description)
+                };
+            }
+
+            return true;
+        }
     }
 }
 

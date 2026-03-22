@@ -13,5 +13,11 @@ namespace TrainEase.APIs.Controllers.Controllers.Admin
            var result = await _serviceManager.AdminService.AssignStationMasterAsync(stationMaster);
            return Ok(result);
         }
+        [HttpDelete("[action]/{stationMasterId}")]
+        public async Task<ActionResult<bool>> RemoveStationMaster(string stationMasterId)
+        {
+            var result = await _serviceManager.AdminService.RemoveStationMasterAsync(stationMasterId);
+            return Ok("Station master removed successfully.");
+        }
     }
 }
