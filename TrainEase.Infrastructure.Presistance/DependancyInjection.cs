@@ -14,6 +14,7 @@ using TrainEase.Core.Domain.Contracts;
 using TrainEase.Core.Domain.Entities;
 using TrainEase.Infrastructure.Presistance._Data;
 using TrainEase.Infrastructure.Presistance._Identity;
+using TrainEase.Infrastructure.Presistance.Repostories;
 using TrainEase.Infrastructure.Presistance.UnitOfWork;
 namespace TrainEase.Infrastructure.Presistance
 {
@@ -34,7 +35,7 @@ namespace TrainEase.Infrastructure.Presistance
             #endregion
 
             services.AddScoped<IUnitOfWork, AppUnitOfWork>();
-            
+            services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
             return services;
         }
     }

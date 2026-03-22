@@ -11,5 +11,7 @@ namespace TrainEase.Core.Application.Abstrations.Services
     public IAuthService AuthService { get; }
     public IJourneyService JourneyService { get; }
     public IStationService StationService { get; }
+    public IAdminService AdminService { get; }
+    public ITrainService TrainService { get; }
     }
 }

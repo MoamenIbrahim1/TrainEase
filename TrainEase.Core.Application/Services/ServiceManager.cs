@@ -1,29 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TrainEase.Core.Application.Abstrations.Services;
+﻿using TrainEase.Core.Application.Abstrations.Services;
 using TrainEase.Core.Domain.Contracts;
 
 namespace TrainEase.Core.Application.Services
 {
     public class ServiceManager : IServiceManager
     {
-    
+
         private readonly Lazy<IAuthService> _authService;
         private readonly Lazy<IJourneyService> _journeyService;
         private readonly Lazy<IStationService> _stationService;
+        private readonly Lazy<IAdminService> _adminService;
+        private readonly Lazy<ITrainService> _trainService;
 
-        public ServiceManager(IUnitOfWork unitOfWork, Func<IAuthService> authServiceFactory, Func<IJourneyService> journeyServiceFactory,Func<IStationService> stationServiceFactory)
+        public ServiceManager(IUnitOfWork unitOfWork, Func<IAuthService> authServiceFactory, Func<IJourneyService> journeyServiceFactory, Func<IStationService> stationServiceFactory, Func<IAdminService> adminServiceFactory, Func<ITrainService> trainServiceFactory)
         {
             _authService = new Lazy<IAuthService>(authServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
-            _journeyService = new Lazy<IJourneyService>( journeyServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
+            _journeyService = new Lazy<IJourneyService>(journeyServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             _stationService = new Lazy<IStationService>(stationServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
+            _adminService = new Lazy<IAdminService>(adminServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
+            _trainService = new Lazy<ITrainService>(trainServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
         }
         public IAuthService AuthService => _authService.Value;
         public IJourneyService JourneyService => _journeyService.Value;
         public IStationService StationService => _stationService.Value;
+        public IAdminService AdminService => _adminService.Value;
+        public ITrainService TrainService => _trainService.Value;
     }
 }

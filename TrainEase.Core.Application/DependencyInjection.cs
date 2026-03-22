@@ -2,8 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using TrainEase.Core.Application.Abstrations.Services;
 using TrainEase.Core.Application.Services;
+using TrainEase.Core.Application.Services.Admin;
 using TrainEase.Core.Application.Services.Journey;
 using TrainEase.Core.Application.Services.Stations;
+using TrainEase.Core.Application.Services.Trains;
 
 namespace TrainEase.Core.Application
 {
@@ -13,9 +15,10 @@ namespace TrainEase.Core.Application
         {
 
             services.AddAutoMapper(typeof(AssemblyInfo));
-            services.AddScoped<IServiceManager, ServiceManager>();
-            services.AddScoped<IJourneyService, JourneyService>();
 
+            services.AddScoped<IServiceManager, ServiceManager>();
+
+            services.AddScoped<IJourneyService, JourneyService>();
             services.AddScoped<Func<IJourneyService>>(provider =>
             {
                 return () => provider.GetRequiredService<IJourneyService>();
@@ -26,6 +29,19 @@ namespace TrainEase.Core.Application
             {
                 return () => provider.GetRequiredService<IStationService>();
             });
+
+            services.AddScoped<IAdminService, AdminService>();
+            services.AddScoped<Func<IAdminService>>(provider =>
+            {
+                return () => provider.GetRequiredService<IAdminService>();
+            });
+
+            services.AddScoped<ITrainService, TrainService>();
+            services.AddScoped<Func<ITrainService>>(provider =>
+                {
+                    return () => provider.GetRequiredService<ITrainService>();
+                });
+
 
             return services;
         }

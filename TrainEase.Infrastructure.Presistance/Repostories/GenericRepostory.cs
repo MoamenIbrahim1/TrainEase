@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using TrainEase.Core.Domain.Common;
@@ -14,9 +15,14 @@ namespace TrainEase.Infrastructure.Presistance.Repostories
         where TEntity : BaseAuditableEntity<TKey>
         where TKey : IEquatable<TKey>
     {
-        public IQueryable<TEntity> GetQueryable()
+        public IQueryable<TEntity> GetQueryable(Expression<Func<TEntity, bool>>? predicate = null)
         {
-            return _dbContext.Set<TEntity>().AsQueryable();
+            var query = _dbContext.Set<TEntity>().AsQueryable();
+
+            if (predicate is not null)
+                query = query.Where(predicate);
+
+            return query;
         }
         public async Task<IEnumerable<TEntity>> GetAllAsync(bool withTracking = false)
         {
