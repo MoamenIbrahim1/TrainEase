@@ -8,7 +8,7 @@ using TrainEase.Infrastructure.Presistance._Data;
 
 #nullable disable
 
-namespace TrainEase.Infrastructure.Presistance.Migrations
+namespace TrainEase.Infrastructure.Presistance.Migrations.AppDb
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -158,6 +158,36 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("TrainEase.Core.Domain.Entities.BookTicket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PassengerId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PassengerId");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("BookTickets");
+                });
+
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Booking", b =>
                 {
                     b.Property<int>("Id")
@@ -165,6 +195,9 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -174,10 +207,17 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<int?>("PassengerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ScheduleId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -186,9 +226,18 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("PassengerId");
+
+                    b.HasIndex("ScheduleId");
+
                     b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("Bookings");
                 });
@@ -251,12 +300,15 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasColumnType("bit");
 
                     b.Property<decimal>("NetPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Tax")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Total")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -301,7 +353,6 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -313,6 +364,46 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("TrainEase.Core.Domain.Entities.Passenger", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("NationalId")
+                        .IsRequired()
+                        .HasMaxLength(14)
+                        .HasColumnType("nvarchar(14)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Passengers", (string)null);
+                });
+
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Payment", b =>
                 {
                     b.Property<int>("Id")
@@ -322,6 +413,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("BookingId")
@@ -374,6 +466,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasColumnType("bit");
 
                     b.Property<decimal>("RefundAmount")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -473,6 +566,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("RouteId")
@@ -497,7 +591,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("TrainId");
 
-                    b.ToTable("Schedules");
+                    b.ToTable("Schedules", (string)null);
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Seat", b =>
@@ -580,7 +674,11 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<int?>("PassengerId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("SeatId")
@@ -596,6 +694,8 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BookingId");
+
+                    b.HasIndex("PassengerId");
 
                     b.HasIndex("SeatId");
 
@@ -632,7 +732,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Trains");
+                    b.ToTable("Trains", (string)null);
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.User", b =>
@@ -765,12 +865,47 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TrainEase.Core.Domain.Entities.BookTicket", b =>
+                {
+                    b.HasOne("TrainEase.Core.Domain.Entities.Passenger", "Passenger")
+                        .WithMany()
+                        .HasForeignKey("PassengerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrainEase.Core.Domain.Entities.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Passenger");
+
+                    b.Navigation("Ticket");
+                });
+
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Booking", b =>
                 {
-                    b.HasOne("TrainEase.Core.Domain.Entities.User", "User")
+                    b.HasOne("TrainEase.Core.Domain.Entities.Passenger", null)
                         .WithMany("Bookings")
+                        .HasForeignKey("PassengerId");
+
+                    b.HasOne("TrainEase.Core.Domain.Entities.Schedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrainEase.Core.Domain.Entities.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("TrainEase.Core.Domain.Entities.User", null)
+                        .WithMany("Bookings")
+                        .HasForeignKey("UserId1");
+
+                    b.Navigation("Schedule");
 
                     b.Navigation("User");
                 });
@@ -807,8 +942,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.HasOne("TrainEase.Core.Domain.Entities.User", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("SentByUser");
 
@@ -910,6 +1044,10 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("TrainEase.Core.Domain.Entities.Passenger", null)
+                        .WithMany("Tickets")
+                        .HasForeignKey("PassengerId");
+
                     b.HasOne("TrainEase.Core.Domain.Entities.Seat", "Seat")
                         .WithMany()
                         .HasForeignKey("SeatId")
@@ -943,6 +1081,13 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Carriage", b =>
                 {
                     b.Navigation("Seats");
+                });
+
+            modelBuilder.Entity("TrainEase.Core.Domain.Entities.Passenger", b =>
+                {
+                    b.Navigation("Bookings");
+
+                    b.Navigation("Tickets");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Route", b =>

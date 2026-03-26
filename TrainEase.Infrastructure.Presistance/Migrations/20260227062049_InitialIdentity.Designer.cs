@@ -11,7 +11,7 @@ using TrainEase.Infrastructure.Presistance._Data;
 
 namespace TrainEase.Infrastructure.Presistance.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(AppDbContextBooking))]
     [Migration("20260227062049_InitialIdentity")]
     partial class InitialIdentity
     {

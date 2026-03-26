@@ -11,7 +11,7 @@ using TrainEase.Infrastructure.Presistance._Data;
 
 namespace TrainEase.Infrastructure.Presistance.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(AppDbContextBooking))]
     [Migration("20260303211118_test")]
     partial class test
     {

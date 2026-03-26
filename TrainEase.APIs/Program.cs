@@ -48,6 +48,7 @@ namespace TrainEase.APIs
                 }
             }
 
+           
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
