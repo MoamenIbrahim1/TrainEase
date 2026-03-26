@@ -8,7 +8,7 @@ using TrainEase.Infrastructure.Presistance._Data;
 
 #nullable disable
 
-namespace TrainEase.Infrastructure.Presistance.Migrations.AppDb
+namespace TrainEase.Infrastructure.Presistance.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -353,6 +353,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations.AppDb
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -794,6 +795,9 @@ namespace TrainEase.Infrastructure.Presistance.Migrations.AppDb
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("StationId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -810,6 +814,10 @@ namespace TrainEase.Infrastructure.Presistance.Migrations.AppDb
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.HasIndex("StationId")
+                        .IsUnique()
+                        .HasFilter("[StationId] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -942,7 +950,8 @@ namespace TrainEase.Infrastructure.Presistance.Migrations.AppDb
                     b.HasOne("TrainEase.Core.Domain.Entities.User", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("SentByUser");
 
@@ -1067,6 +1076,15 @@ namespace TrainEase.Infrastructure.Presistance.Migrations.AppDb
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TrainEase.Core.Domain.Entities.User", b =>
+                {
+                    b.HasOne("TrainEase.Core.Domain.Entities.Station", "Station")
+                        .WithOne("StationMaster")
+                        .HasForeignKey("TrainEase.Core.Domain.Entities.User", "StationId");
+
+                    b.Navigation("Station");
+                });
+
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Booking", b =>
                 {
                     b.Navigation("Invoice");
@@ -1100,6 +1118,8 @@ namespace TrainEase.Infrastructure.Presistance.Migrations.AppDb
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Station", b =>
                 {
                     b.Navigation("RouteStations");
+
+                    b.Navigation("StationMaster");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Train", b =>

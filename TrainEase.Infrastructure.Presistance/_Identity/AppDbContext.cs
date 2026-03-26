@@ -2,28 +2,50 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using TrainEase.Core.Domain.Contracts;
 using TrainEase.Core.Domain.Entities;
 
 namespace TrainEase.Infrastructure.Presistance._Data
 {
-    public class AppDbContext : IdentityDbContext<User>
+    public class AppDbContext : IdentityDbContext<User>, IAppDbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
-
         }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
+
             base.OnModelCreating(builder);
+
+
             builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+            builder.Entity<Booking>()
+                .HasOne(b => b.User)
+                .WithMany()
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+
+            builder.Entity<Passenger>().Ignore(p => p.Notifications);
+
+
+            foreach (var property in builder.Model.GetEntityTypes()
+                .SelectMany(t => t.GetProperties())
+                .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?)))
+            {
+                property.SetPrecision(18);
+                property.SetScale(2);
+            }
         }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
-            optionsBuilder.LogTo(log => Debug.WriteLine(log), LogLevel.Information).
-                EnableSensitiveDataLogging(true); // Enable sensitive data logging for debugging purposes
-
+            optionsBuilder.LogTo(log => Debug.WriteLine(log), LogLevel.Information)
+                          .EnableSensitiveDataLogging(true);
         }
+
         public DbSet<Train> Trains { get; set; }
         public DbSet<Carriage> Carriages { get; set; }
         public DbSet<Seat> Seats { get; set; }
@@ -37,6 +59,9 @@ namespace TrainEase.Infrastructure.Presistance._Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Refund> Refunds { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Passenger> Passengers { get; set; }
+        public DbSet<BookTicket> BookTickets { get; set; }
+
 
     }
 }

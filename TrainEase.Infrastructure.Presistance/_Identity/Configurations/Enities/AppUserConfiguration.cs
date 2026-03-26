@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TrainEase.Core.Domain.Entities;
 
-namespace TrainEase.Infrastructure.Presistance._Identity.Config
+namespace TrainEase.Infrastructure.Presistance._Identity.Configurations.Enities
 {
     public class UserConfiguration : IEntityTypeConfiguration<User>
     {

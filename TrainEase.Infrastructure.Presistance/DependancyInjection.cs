@@ -22,18 +22,12 @@ namespace TrainEase.Infrastructure.Presistance
     {
         public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
         {
-            #region TrainEaseContext
-
-            services.AddDbContext<TrainEaseContext>(options =>
-                options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("TrainEaseDbContext")));
-
-            #endregion
-
+          
             #region IdentityContext
             services.AddDbContext<AppDbContext>(options =>
-              options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("IdentityContext"))); 
+              options.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("IdentityContext")));
             #endregion
-
+            services.AddScoped<IAppDbContext>(provider => provider.GetRequiredService<AppDbContext>());
             services.AddScoped<IUnitOfWork, AppUnitOfWork>();
             services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
             return services;

@@ -21,7 +21,7 @@ namespace TrainEase.Infrastructure.Presistance._Data.Configurations.Enities
             builder.HasOne(c => c.Train)
                    .WithMany(t => t.Carriages)
                    .HasForeignKey(c => c.TrainId)
-                   .OnDelete(DeleteBehavior.Cascade); // لو مسحنا القطار تمسح عرباته
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

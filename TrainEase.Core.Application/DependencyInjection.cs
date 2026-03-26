@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TrainEase.Core.Application.Abstrations.Services;
 using TrainEase.Core.Application.Services;
 using TrainEase.Core.Application.Services.Admin;
+using TrainEase.Core.Application.Services.Booking;
 using TrainEase.Core.Application.Services.Journey;
 using TrainEase.Core.Application.Services.Stations;
 using TrainEase.Core.Application.Services.Trains;
@@ -41,6 +42,12 @@ namespace TrainEase.Core.Application
                 {
                     return () => provider.GetRequiredService<ITrainService>();
                 });
+
+            services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<Func<IBookingService>>(provider =>
+            {
+                return () => provider.GetRequiredService<IBookingService>();
+            });
 
 
             return services;
