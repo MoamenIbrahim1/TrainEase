@@ -1,52 +1,30 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TrainEase.APIs.Controllers.Controllers.Base;
 using TrainEase.Core.Application.Abstrations.Model.Booking;
 using TrainEase.Core.Application.Abstrations.Services;
-using TrainEase.Core.Domain.Entities;
 
 namespace TrainEase.APIs.Controllers.Controllers.Booking
 {
-
-    [ApiController]
-    [Route("api/[controller]")]
-    public class BookingsController : ControllerBase
+    [Authorize]
+    public class BookingsController(IServiceManager serviceManager) : BaseApiController
     {
-        private readonly IBookingService _bookingService;
-
-        public BookingsController(IBookingService bookingService)
+        [HttpGet("journeys/{journeyId}/seats")]
+        public async Task<IActionResult> GetSeats(int journeyId)
         {
-            _bookingService = bookingService;
-        }
-
-
-        [HttpGet("schedules/{scheduleId}/seats")]
-        public async Task<IActionResult> GetSeats(int scheduleId)
-        {
-            var seats = await _bookingService.GetSeatsByScheduleAsync(scheduleId);
-            return Ok(seats);
+            var result = await serviceManager.BookingService
+                .GetSeatsByScheduleAsync(journeyId);
+            return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateBooking(CreateBookingDto dto)
+        public async Task<IActionResult> CreateBooking([FromBody] CreateBookingDto dto)
         {
-            try
-            {
-
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                if (string.IsNullOrEmpty(userId))
-                {
-                    return Unauthorized("يجب تسجيل الدخول أولاً لإتمام الحجز");
-                }
-
-                var bookingId = await _bookingService.CreateBookingAsync(dto, userId);
-                return Ok(new { Message = "Booking Created Successfully", BookingId = bookingId });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var result = await serviceManager.BookingService
+                .CreateBookingAsync(dto, userId);
+            return Ok(result);
         }
     }
 }

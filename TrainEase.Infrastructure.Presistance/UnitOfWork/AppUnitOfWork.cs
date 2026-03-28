@@ -1,14 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 using TrainEase.Core.Domain.Common;
 using TrainEase.Core.Domain.Contracts;
 using TrainEase.Infrastructure.Presistance._Data;
-using TrainEase.Infrastructure.Presistance.Repostories; 
+using TrainEase.Infrastructure.Presistance.Repostories;
 
 namespace TrainEase.Infrastructure.Presistance.UnitOfWork
 {
@@ -38,6 +32,6 @@ namespace TrainEase.Infrastructure.Presistance.UnitOfWork
                 _ => new GenericRepository<TEntity, Tkey>(_context));
         }
 
-       
+
     }
 }

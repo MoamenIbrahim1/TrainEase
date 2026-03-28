@@ -2,7 +2,7 @@
 
 namespace TrainEase.Core.Domain.Entities
 {
-    public class Passenger : BaseEntity<int>
+    public class Passenger : BaseAuditableEntity<int>  
     {
         public required string Name { get; set; }
         public required string Email { get; set; }

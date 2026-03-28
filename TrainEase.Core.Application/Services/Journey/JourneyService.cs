@@ -13,14 +13,23 @@ using TrainEase.Core.Domain.Entities;
 
 namespace TrainEase.Core.Application.Services.Journey
 {
-    public class JourneyService(IUnitOfWork _unitOfWork,IMapper _mapper) : IJourneyService
+    public class JourneyService(IUnitOfWork _unitOfWork, IMapper _mapper) : IJourneyService
     {
         public async Task<IEnumerable<JourneySearchResultDto>> GetAllJourneysAsync()
         {
-           var schedulesRepo = _unitOfWork.GetRepository<Schedule, int>();
-           var schedules = await schedulesRepo.GetAllAsync();
-           var result = _mapper.Map<IEnumerable<JourneySearchResultDto>>(schedules);
-           return result;
+            var schedulesRepo = _unitOfWork.GetRepository<Schedule, int>();
+
+            var schedules = await schedulesRepo
+                .GetQueryable(s => !s.IsDeleted)
+                .Include(s => s.Train)
+                .Include(s => s.SourceStation)
+                .Include(s => s.DestinationStation)
+                .Include(s => s.Route)
+                    .ThenInclude(r => r.RouteStations.OrderBy(rs => rs.Sequence))
+                        .ThenInclude(rs => rs.Station)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<JourneySearchResultDto>>(schedules);
         }
 
         public async Task<IEnumerable<JourneySearchResultDto>> SearchJourneysAsync(
@@ -42,25 +51,21 @@ namespace TrainEase.Core.Application.Services.Journey
 
             var schedulesRepo = _unitOfWork.GetRepository<Schedule, int>();
 
-            var schedules = schedulesRepo
-             .GetQueryable()
-             .Where(s =>
-                 s.SourceStationId == fromStationId &&
-                 s.DestinationStationId == toStationId &&
-                 s.DepartureTime.Date == date.Date &&
-                 !s.IsDeleted)
-             .Select(s => new JourneySearchResultDto
-             {
-                 ScheduleId = s.Id,
-                 TrainNumber = s.Train.TrainNumber!,
-                 SourceStationName = s.SourceStation.Name!,
-                 DestinationStationName = s.DestinationStation.Name!,
-                 DepartureDateTime = s.DepartureTime,
-                 ArrivalDateTime = s.ArrivalTime,
-                 DurationInMinutes = (int)(s.ArrivalTime - s.DepartureTime).TotalMinutes,
-                 Price = s.Price
-             });
-            return await schedules.ToListAsync();
+            var schedules = await schedulesRepo
+                .GetQueryable(s =>
+                    s.SourceStationId == fromStationId &&
+                    s.DestinationStationId == toStationId &&
+                    s.DepartureTime.Date == date.Date &&
+                    !s.IsDeleted)
+                .Include(s => s.Train)
+                .Include(s => s.SourceStation)
+                .Include(s => s.DestinationStation)
+                .Include(s => s.Route)
+                    .ThenInclude(r => r.RouteStations.OrderBy(rs => rs.Sequence))
+                        .ThenInclude(rs => rs.Station)
+                .ToListAsync();
+
+            return _mapper.Map<IEnumerable<JourneySearchResultDto>>(schedules);
         }
     }
 }

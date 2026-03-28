@@ -11,19 +11,22 @@ namespace TrainEase.Core.Application.Services
         private readonly Lazy<IStationService> _stationService;
         private readonly Lazy<IAdminService> _adminService;
         private readonly Lazy<ITrainService> _trainService;
+        private readonly Lazy<IBookingService> _bookingService;
 
-        public ServiceManager(IUnitOfWork unitOfWork, Func<IAuthService> authServiceFactory, Func<IJourneyService> journeyServiceFactory, Func<IStationService> stationServiceFactory, Func<IAdminService> adminServiceFactory, Func<ITrainService> trainServiceFactory)
+        public ServiceManager(IUnitOfWork unitOfWork, Func<IAuthService> authServiceFactory, Func<IJourneyService> journeyServiceFactory, Func<IStationService> stationServiceFactory, Func<IAdminService> adminServiceFactory, Func<ITrainService> trainServiceFactory, Func<IBookingService> bookingServiceFactory)
         {
             _authService = new Lazy<IAuthService>(authServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             _journeyService = new Lazy<IJourneyService>(journeyServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             _stationService = new Lazy<IStationService>(stationServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             _adminService = new Lazy<IAdminService>(adminServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             _trainService = new Lazy<ITrainService>(trainServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
+            _bookingService = new Lazy<IBookingService>(bookingServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
         }
         public IAuthService AuthService => _authService.Value;
         public IJourneyService JourneyService => _journeyService.Value;
         public IStationService StationService => _stationService.Value;
         public IAdminService AdminService => _adminService.Value;
         public ITrainService TrainService => _trainService.Value;
+        public IBookingService BookingService => _bookingService.Value;
     }
 }
