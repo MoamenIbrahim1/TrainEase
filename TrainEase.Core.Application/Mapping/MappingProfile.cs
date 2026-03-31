@@ -57,6 +57,8 @@ namespace TrainEase.Core.Application.Mapping
 
             //Train Mappings
             CreateMap<Train, TrainDto>()
+                .ForMember(dest => dest.Id,
+                   opt => opt.MapFrom(src => src.Id))
                .ForMember(dest => dest.TrainNumber,
                    opt => opt.MapFrom(src => src.TrainNumber))
                .ForMember(dest => dest.TrainName,

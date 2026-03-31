@@ -69,7 +69,7 @@ namespace TrainEase.APIs
 
                     var context = services.GetRequiredService<AppDbContext>();
                     await context.Database.MigrateAsync();
-                    await SeedData.SeedAsync(context);
+                    //await SeedData.SeedAsync(context);
 
                     Console.WriteLine("--> Success: Database Migrated & Seeded!");
                 }

@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TrainEase.Core.Application.Abstrations.Model.Booking;
+using TrainEase.Core.Application.Abstrations.Model.Carriage;
+using TrainEase.Core.Application.Abstrations.Model.Journey;
+using TrainEase.Core.Application.Abstrations.Model.Seat;
 using TrainEase.Core.Application.Abstrations.Services;
 using TrainEase.Core.Application.Exceptions;
 using TrainEase.Core.Domain.Contracts;
@@ -10,7 +13,7 @@ namespace TrainEase.Core.Application.Services.Booking
 {
     public class BookingService(IUnitOfWork unitOfWork) : IBookingService
     {
-        public async Task<IEnumerable<SeatDto>> GetSeatsByScheduleAsync(int scheduleId)
+        public async Task<JourneySeatsDto> GetSeatsByScheduleAsync(int scheduleId)
         {
             var scheduleRepo = unitOfWork.GetRepository<Schedule, int>();
 
@@ -24,6 +27,7 @@ namespace TrainEase.Core.Application.Services.Booking
             if (schedule is null)
                 throw new NotFoundException("Schedule", scheduleId);
 
+            // جيب المقاعد المحجوزة
             var ticketRepo = unitOfWork.GetRepository<Ticket, int>();
             var bookedSeatIds = await ticketRepo
                 .GetQueryable(t =>
@@ -33,17 +37,29 @@ namespace TrainEase.Core.Application.Services.Booking
                 .Select(t => t.SeatId)
                 .ToListAsync();
 
-            var seats = schedule.Train.Carriages
-                .SelectMany(c => c.Seats.Select(s => new SeatDto
-                {
-                    Id = s.Id,
-                    SeatNumber = s.SeatNumber!,
-                    CarriageNumber = c.CarriageNumber!,
-                    ClassType = c.ClassType!,
-                    IsBooked = bookedSeatIds.Contains(s.Id)
-                }));
+            var carriages = schedule.Train.Carriages
+    .Select(c => new CarriageSeatsDto
+    {
+        CarriageId = c.Id,
+        CarriageNumber = c.CarriageNumber!,
+        ClassType = c.ClassType!,
+        SeatsCount = c.Seats.Count,
+        PricePerSeat = c.PricePerSeat, 
+        Seats = c.Seats.Select(s => new SeatInfoDto
+        {
+            SeatId = s.Id,
+            SeatNumber = s.SeatNumber!,
+            IsBooked = bookedSeatIds.Contains(s.Id)
+        }).ToList()
+    }).ToList();
 
-            return seats;
+            return new JourneySeatsDto
+            {
+                TrainId = schedule.Train.Id,
+                TrainNumber = schedule.Train.TrainNumber!,
+                TrainName = schedule.Train.TrainName!,
+                Carriages = carriages
+            };
         }
 
         public async Task<BookingResultDto> CreateBookingAsync(CreateBookingDto dto, string userId)
