@@ -16,11 +16,10 @@ namespace TrainEase.Infrastructure.Presistance._Data.Configurations.Enities
             builder.Property(p => p.Email).IsRequired().HasMaxLength(150);
             builder.Property(p => p.PhoneNumber).IsRequired().HasMaxLength(15);
             builder.Property(p => p.NationalId).IsRequired().HasMaxLength(14);
-            builder.Property(p => p.Password).IsRequired();
             builder.Property(p => p.Age).IsRequired();
 
 
-            builder.Ignore(p => p.Notifications);
+            
         }
     }
 }

@@ -1,7 +1,8 @@
 ﻿using TrainEase.Core.Domain.Common;
+using TrainEase.Core.Domain.Entities;
 using TrainEase.Core.Domain.Entities.Enums;
 
-namespace TrainEase.Core.Domain.Entities
+ namespace TrainEase.Core.Domain.Entities
 {
     public class Booking : BaseAuditableEntity<int>
     {

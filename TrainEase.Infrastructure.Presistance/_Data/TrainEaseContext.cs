@@ -19,21 +19,17 @@ namespace TrainEase.Infrastructure.Presistance._Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // تطبيق الإعدادات من الـ Configurations (مثل الـ Seed Data والـ Fluent API)
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(TrainEaseContext).Assembly);
 
-            // 1. تحديد العلاقة بين Booking و IdentityUser
-            // هذا السطر يخبر EF أن الـ UserId في جدول الحجز يشير لجدول الـ IdentityUser (AspNetUsers)
+           
             modelBuilder.Entity<Booking>()
                 .HasOne(b => b.User)
-                .WithMany() // يمكن للمستخدم أن يحجز أكثر من مرة
+                .WithMany() 
                 .HasForeignKey(b => b.UserId)
-                .OnDelete(DeleteBehavior.NoAction); // لتجنب مشاكل الـ Cascade Delete
+                .OnDelete(DeleteBehavior.NoAction);
 
-            // 2. تجاهل Notifications في Passenger كما طلبت
-            modelBuilder.Entity<Passenger>().Ignore(p => p.Notifications);
 
-            // 3. ضبط الـ Decimal Precision لجميع الحقول المالية
+
             foreach (var property in modelBuilder.Model.GetEntityTypes()
                 .SelectMany(t => t.GetProperties())
                 .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?)))
@@ -49,7 +45,6 @@ namespace TrainEase.Infrastructure.Presistance._Data
                           .EnableSensitiveDataLogging(true);
         }
 
-        // الجداول الخاصة بنظام القطارات
         public DbSet<Train> Trains { get; set; }
         public DbSet<Carriage> Carriages { get; set; }
         public DbSet<Seat> Seats { get; set; }
@@ -58,7 +53,6 @@ namespace TrainEase.Infrastructure.Presistance._Data
         public DbSet<RouteStation> RouteStations { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
         public DbSet<Booking> Bookings { get; set; }
-        public DbSet<BookTicket> BookTickets { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<Payment> Payments { get; set; }
@@ -66,6 +60,5 @@ namespace TrainEase.Infrastructure.Presistance._Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Passenger> Passengers { get; set; }
 
-        // تم حذف DbSet<User> اليدوي لعدم التداخل مع جداول الـ Identity
     }
 }

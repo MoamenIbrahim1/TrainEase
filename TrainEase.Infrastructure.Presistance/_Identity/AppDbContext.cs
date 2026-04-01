@@ -15,21 +15,21 @@ namespace TrainEase.Infrastructure.Presistance._Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-
             base.OnModelCreating(builder);
-
 
             builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
             builder.Entity<Booking>()
                 .HasOne(b => b.User)
-                .WithMany()
+                .WithMany(u => u.Bookings)
                 .HasForeignKey(b => b.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
 
-
-            builder.Entity<Passenger>().Ignore(p => p.Notifications);
-
+            builder.Entity<Ticket>()
+                .HasOne(t => t.Passenger)
+                .WithMany(p => p.Tickets)
+                .HasForeignKey(t => t.PassengerId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             foreach (var property in builder.Model.GetEntityTypes()
                 .SelectMany(t => t.GetProperties())
@@ -60,9 +60,5 @@ namespace TrainEase.Infrastructure.Presistance._Data
         public DbSet<Refund> Refunds { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Passenger> Passengers { get; set; }
-        public DbSet<BookTicket> BookTickets { get; set; }
-
-
     }
 }
-

@@ -16,7 +16,6 @@ namespace TrainEase.Core.Domain.Contracts
         DbSet<Passenger> Passengers { get; }
         DbSet<Schedule> Schedules { get; }
         DbSet<Ticket> Tickets { get; }
-        DbSet<BookTicket> BookTickets { get; }
         DatabaseFacade Database { get; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
