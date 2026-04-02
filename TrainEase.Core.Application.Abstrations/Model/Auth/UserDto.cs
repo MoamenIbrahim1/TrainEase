@@ -14,5 +14,7 @@ namespace TrainEase.Core.Application.Abstrations.Model.Auth
         public required string NationalId { get; set; }
         public required string Email { get; set; }
         public required string Token { get; set; }
+        public required string Role { get; set; }
+
     }
 }

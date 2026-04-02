@@ -14,5 +14,7 @@ namespace TrainEase.Core.Domain.Entities
         public virtual Station SourceStation { get; set; } = null!;
         public int DestinationStationId { get; set; }
         public virtual Station DestinationStation { get; set; } = null!;
+        public decimal Price { get; set; }
+
     }
 }

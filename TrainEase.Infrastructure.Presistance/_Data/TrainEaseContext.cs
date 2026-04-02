@@ -11,24 +11,44 @@ namespace TrainEase.Infrastructure.Presistance._Data
 {
     public class TrainEaseContext : DbContext
     {
-
-        public TrainEaseContext(DbContextOptions options) : base(options)
+        public TrainEaseContext(DbContextOptions<TrainEaseContext> options) : base(options)
         {
-            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AssemblyInformation).Assembly);
+            base.OnModelCreating(modelBuilder);
+
+            // تطبيق الإعدادات من الـ Configurations (مثل الـ Seed Data والـ Fluent API)
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(TrainEaseContext).Assembly);
+
+            // 1. تحديد العلاقة بين Booking و IdentityUser
+            // هذا السطر يخبر EF أن الـ UserId في جدول الحجز يشير لجدول الـ IdentityUser (AspNetUsers)
+            modelBuilder.Entity<Booking>()
+                .HasOne(b => b.User)
+                .WithMany() // يمكن للمستخدم أن يحجز أكثر من مرة
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.NoAction); // لتجنب مشاكل الـ Cascade Delete
+
+          
+
+            // 3. ضبط الـ Decimal Precision لجميع الحقول المالية
+            foreach (var property in modelBuilder.Model.GetEntityTypes()
+                .SelectMany(t => t.GetProperties())
+                .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?)))
+            {
+                property.SetPrecision(18);
+                property.SetScale(2);
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
-            optionsBuilder.LogTo(log => Debug.WriteLine(log), LogLevel.Information).
-                EnableSensitiveDataLogging(true); // Enable sensitive data logging for debugging purposes
-
+            optionsBuilder.LogTo(log => Debug.WriteLine(log), LogLevel.Information)
+                          .EnableSensitiveDataLogging(true);
         }
+
+        // الجداول الخاصة بنظام القطارات
         public DbSet<Train> Trains { get; set; }
         public DbSet<Carriage> Carriages { get; set; }
         public DbSet<Seat> Seats { get; set; }
@@ -42,5 +62,8 @@ namespace TrainEase.Infrastructure.Presistance._Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Refund> Refunds { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Passenger> Passengers { get; set; }
+
+        // تم حذف DbSet<User> اليدوي لعدم التداخل مع جداول الـ Identity
     }
 }

@@ -9,5 +9,10 @@ namespace TrainEase.Core.Application.Abstrations.Services
     public interface IServiceManager
     {
     public IAuthService AuthService { get; }
+    public IJourneyService JourneyService { get; }
+    public IStationService StationService { get; }
+    public IAdminService AdminService { get; }
+    public ITrainService TrainService { get; }
+    public IBookingService BookingService { get; }
     }
 }
