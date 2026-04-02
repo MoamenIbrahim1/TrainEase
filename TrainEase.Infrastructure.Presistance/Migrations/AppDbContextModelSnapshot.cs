@@ -158,45 +158,6 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TrainEase.Core.Domain.Entities.BookTicket", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("PassengerId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("TicketId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PassengerId");
-
-                    b.HasIndex("TicketId");
-
-                    b.ToTable("BookTickets");
-                });
-
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Booking", b =>
                 {
                     b.Property<int>("Id")
@@ -216,9 +177,6 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<int?>("PassengerId")
-                        .HasColumnType("int");
-
                     b.Property<int>("ScheduleId")
                         .HasColumnType("int");
 
@@ -235,18 +193,11 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("UserId1")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("PassengerId");
 
                     b.HasIndex("ScheduleId");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("UserId1");
 
                     b.ToTable("Bookings");
                 });
@@ -274,6 +225,10 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
+
+                    b.Property<decimal>("PricePerSeat")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("TrainId")
                         .HasColumnType("int");
@@ -405,10 +360,6 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .IsRequired()
                         .HasMaxLength(14)
                         .HasColumnType("nvarchar(14)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -693,7 +644,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<int?>("PassengerId")
+                    b.Property<int>("PassengerId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Price")
@@ -891,31 +842,8 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TrainEase.Core.Domain.Entities.BookTicket", b =>
-                {
-                    b.HasOne("TrainEase.Core.Domain.Entities.Passenger", "Passenger")
-                        .WithMany()
-                        .HasForeignKey("PassengerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TrainEase.Core.Domain.Entities.Ticket", "Ticket")
-                        .WithMany()
-                        .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Passenger");
-
-                    b.Navigation("Ticket");
-                });
-
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Booking", b =>
                 {
-                    b.HasOne("TrainEase.Core.Domain.Entities.Passenger", null)
-                        .WithMany("Bookings")
-                        .HasForeignKey("PassengerId");
-
                     b.HasOne("TrainEase.Core.Domain.Entities.Schedule", "Schedule")
                         .WithMany()
                         .HasForeignKey("ScheduleId")
@@ -923,13 +851,9 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .IsRequired();
 
                     b.HasOne("TrainEase.Core.Domain.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Bookings")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("TrainEase.Core.Domain.Entities.User", null)
-                        .WithMany("Bookings")
-                        .HasForeignKey("UserId1");
 
                     b.Navigation("Schedule");
 
@@ -1022,7 +946,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.HasOne("TrainEase.Core.Domain.Entities.Station", "DestinationStation")
                         .WithMany()
                         .HasForeignKey("DestinationStationId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TrainEase.Core.Domain.Entities.Route", "Route")
@@ -1034,7 +958,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.HasOne("TrainEase.Core.Domain.Entities.Station", "SourceStation")
                         .WithMany()
                         .HasForeignKey("SourceStationId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TrainEase.Core.Domain.Entities.Train", "Train")
@@ -1071,9 +995,11 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TrainEase.Core.Domain.Entities.Passenger", null)
+                    b.HasOne("TrainEase.Core.Domain.Entities.Passenger", "Passenger")
                         .WithMany("Tickets")
-                        .HasForeignKey("PassengerId");
+                        .HasForeignKey("PassengerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("TrainEase.Core.Domain.Entities.Seat", "Seat")
                         .WithMany()
@@ -1088,6 +1014,8 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .IsRequired();
 
                     b.Navigation("Booking");
+
+                    b.Navigation("Passenger");
 
                     b.Navigation("Seat");
 
@@ -1121,8 +1049,6 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Passenger", b =>
                 {
-                    b.Navigation("Bookings");
-
                     b.Navigation("Tickets");
                 });
 
