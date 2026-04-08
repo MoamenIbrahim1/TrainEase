@@ -15,6 +15,27 @@ namespace TrainEase.Core.Application.Services.Admin
 {
     public class AdminService(UserManager<User> _userManager, IUnitOfWork _unitOfWork) : IAdminService
     {
+        public async Task<IEnumerable<StationMasterDto>> GetAllStationMastersAsync()
+        {
+           var stationMasters = _userManager.Users.Where(u => u.Role == UserRole.StationMaster).ToList();
+            var stationMasterDtos = new List<StationMasterDto>();
+            foreach (var stationMaster in stationMasters)
+            {
+                var role = (await _userManager.GetRolesAsync(stationMaster)).FirstOrDefault();
+                var station = await _unitOfWork.GetRepository<Station, int>().GetAsync(stationMaster.StationId??0);
+                stationMasterDtos.Add(new StationMasterDto
+                {
+                    Id = stationMaster.Id,
+                    Name = stationMaster.FullName,
+                    Email = stationMaster.Email,
+                    NationalId = stationMaster.NationalId,
+                    PhoneNumber = stationMaster.PhoneNumber,
+                    Role = role ?? string.Empty,
+                    StationName = station?.Name ?? string.Empty
+                });
+            }
+            return stationMasterDtos;
+        }
         public async Task<StationMasterDto> AssignStationMasterAsync(CreateStationMasterDto stationMasterDto)
         {
             if (await _userManager.FindByEmailAsync(stationMasterDto.Email) is not null)
@@ -22,6 +43,7 @@ namespace TrainEase.Core.Application.Services.Admin
 
             var stationMaster = new User
             {
+                
                 FullName = stationMasterDto.FullName,
                 Email = stationMasterDto.Email,
                 UserName = stationMasterDto.Email,
@@ -46,6 +68,7 @@ namespace TrainEase.Core.Application.Services.Admin
             var station = await _unitOfWork.GetRepository<Station, int>().GetAsync(stationMaster.StationId??0);
             return new StationMasterDto
             {
+                Id = stationMaster.Id,
                 Name = stationMaster.FullName,
                 Email = stationMaster.Email,
                 NationalId = stationMaster.NationalId,
@@ -54,6 +77,7 @@ namespace TrainEase.Core.Application.Services.Admin
                 StationName = station?.Name ?? string.Empty
             };
         }
+
 
         public async Task<bool> RemoveStationMasterAsync(string stationMasterId)
         {

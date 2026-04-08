@@ -10,6 +10,7 @@ namespace TrainEase.Core.Application.Abstrations.Services
     public interface IAdminService
     {
      public Task<StationMasterDto> AssignStationMasterAsync(CreateStationMasterDto stationMaster);
-     public Task<bool> RemoveStationMasterAsync(string stationMasterId);   
+     public Task<bool> RemoveStationMasterAsync(string stationMasterId); 
+     public Task<IEnumerable<StationMasterDto>> GetAllStationMastersAsync();
     }
 }

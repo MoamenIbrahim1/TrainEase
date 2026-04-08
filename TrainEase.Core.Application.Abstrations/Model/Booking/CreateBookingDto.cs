@@ -11,9 +11,7 @@ namespace TrainEase.Core.Application.Abstrations.Model.Booking
     {
         [Required]
         public int ScheduleId { get; set; }
-
-        [Required]
-        [MinLength(1, ErrorMessage = "يجب إضافة راكب واحد على الأقل")]
-        public List<PassengerBookingDto> Passengers { get; set; } = new List<PassengerBookingDto>();
+        public int UserSeatId { get; set; }
+        public List<PassengerBookingDto> AdditionalPassengers { get; set; } = new();
     }
 }

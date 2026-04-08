@@ -7,5 +7,6 @@ namespace TrainEase.Core.Application.Abstrations.Services
     {
         Task<JourneySeatsDto> GetSeatsByScheduleAsync(int scheduleId);
         Task<BookingResultDto> CreateBookingAsync(CreateBookingDto dto, string userId);
+        Task<IEnumerable<BookingResultDto>> GetBookingsByUserAsync(string userId);
     }
 }
