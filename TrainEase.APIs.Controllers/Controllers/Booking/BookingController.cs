@@ -26,13 +26,20 @@ namespace TrainEase.APIs.Controllers.Controllers.Booking
                 .CreateBookingAsync(dto, userId);
             return Ok(result);
         }
-        
-        [HttpGet("AllBookings")]
+
+        [HttpGet("AllBookingsByUser")]
         public async Task<IActionResult> GetMyBookings()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var result = await serviceManager.BookingService
                 .GetBookingsByUserAsync(userId);
+            return Ok(result);
+        }
+        [HttpGet("AllBookings")]
+        public async Task<IActionResult> GetAllBookings()
+        {
+            var result = await serviceManager.BookingService
+                .GetAllBookingsAsync();
             return Ok(result);
         }
     }

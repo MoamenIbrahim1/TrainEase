@@ -17,7 +17,7 @@ namespace TrainEase.Core.Application.Services.Booking
         public async Task<JourneySeatsDto> GetSeatsByScheduleAsync(int scheduleId)
         {
             var scheduleRepo = unitOfWork.GetRepository<Schedule, int>();
-
+            
             var schedule = await scheduleRepo
                 .GetQueryable(s => s.Id == scheduleId && !s.IsDeleted)
                 .Include(s => s.Train)
@@ -304,6 +304,54 @@ namespace TrainEase.Core.Application.Services.Booking
                         .FirstOrDefault() ?? new List<string>()
                 }).ToList()
             });
+
+            return bookingResults;
+        }
+
+        public async Task<IEnumerable<BookingResultDto>> GetAllBookingsAsync()
+        {
+            var bookingRepo = unitOfWork.GetRepository<TrainEase.Core.Domain.Entities.Booking, int>();
+            var bookings = bookingRepo
+                .GetQueryable(b => !b.IsDeleted)
+                .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Seat)
+                        .ThenInclude(s => s.Carriage)
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.Train)
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.SourceStation)
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.DestinationStation)
+                .ToList();
+              var bookingResults = bookings.Select(b => new BookingResultDto{
+                BookingDate = b.BookingDate,
+                BookingId = b.Id!,
+                Status = b.Status.ToString(),
+                TotalAmount = b.TotalAmount,
+                Tickets = b.Tickets.Select(t => new TicketResultDto
+                {
+                    TicketId = t.Id!,
+                    PassengerName = t.Passenger!.Name,
+                    SeatNumber = t.Seat!.SeatNumber!,
+                    CarriageNumber = t.Seat.Carriage!.CarriageNumber!,
+                    ClassType = t.Seat.Carriage.ClassType!,
+                    Price = t.Price,
+                    TrainName = t.Seat.Carriage.Train!.TrainName!,
+                    TrainNumber = t.Seat.Carriage.Train.TrainNumber!,
+                    SourceStation = t.Seat.Carriage.Train.Schedules.Select(s => s.SourceStation!.Name!).FirstOrDefault()!,
+                    DestinationStation = t.Seat.Carriage.Train.Schedules.Select(s => s.DestinationStation!.Name!).FirstOrDefault()!,
+                    DepartureTime = t.Seat.Carriage.Train.Schedules.Select(s => s.DepartureTime).FirstOrDefault(),
+                    ArrivalTime = t.Seat.Carriage.Train.Schedules.Select(s => s.ArrivalTime).FirstOrDefault(),
+                    IntermediateStops = t.Seat.Carriage.Train.Schedules.Select(s => s.Route.RouteStations
+                        .OrderBy(rs => rs.Sequence)
+                        .Select(rs => rs.Station.Name!)
+                        .Where(name =>
+                            name != s.SourceStation!.Name &&
+                            name != s.DestinationStation!.Name)
+                        .ToList())
+                        .FirstOrDefault() ?? new List<string>()
+                }).ToList()
+              }).ToList();
 
             return bookingResults;
         }
