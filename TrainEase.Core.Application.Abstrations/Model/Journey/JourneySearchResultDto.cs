@@ -13,7 +13,9 @@ namespace TrainEase.Core.Application.Abstrations.Model.Journey
         public DateTime DepartureDateTime { get; set; }
         public DateTime ArrivalDateTime { get; set; }
         public int DurationInMinutes { get; set; }
-        public decimal Price { get; set; }
+        public decimal FirstClassPrice { get; set; } = 250m;
+        public decimal SecondClassPrice { get; set; } = 150m;
+        public decimal VipPrice { get; set; } = 500m;
         public List<string> IntermediateStops { get; set; } = new();
     }
 }

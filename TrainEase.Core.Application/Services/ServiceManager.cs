@@ -12,8 +12,10 @@ namespace TrainEase.Core.Application.Services
         private readonly Lazy<IAdminService> _adminService;
         private readonly Lazy<ITrainService> _trainService;
         private readonly Lazy<IBookingService> _bookingService;
+        private readonly Lazy<IPaymentService> _paymentService;
+        private readonly Lazy<IDashboardService> _dashboardService;
 
-        public ServiceManager(IUnitOfWork unitOfWork, Func<IAuthService> authServiceFactory, Func<IJourneyService> journeyServiceFactory, Func<IStationService> stationServiceFactory, Func<IAdminService> adminServiceFactory, Func<ITrainService> trainServiceFactory, Func<IBookingService> bookingServiceFactory)
+        public ServiceManager(IUnitOfWork unitOfWork, Func<IAuthService> authServiceFactory, Func<IJourneyService> journeyServiceFactory, Func<IStationService> stationServiceFactory, Func<IAdminService> adminServiceFactory, Func<ITrainService> trainServiceFactory, Func<IBookingService> bookingServiceFactory,Func<IPaymentService> paymentServiceFactory, Func<IDashboardService> dashboardServiceFactory)
         {
             _authService = new Lazy<IAuthService>(authServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             _journeyService = new Lazy<IJourneyService>(journeyServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
@@ -21,6 +23,8 @@ namespace TrainEase.Core.Application.Services
             _adminService = new Lazy<IAdminService>(adminServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             _trainService = new Lazy<ITrainService>(trainServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             _bookingService = new Lazy<IBookingService>(bookingServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
+            _paymentService = new Lazy<IPaymentService>(paymentServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
+            _dashboardService = new Lazy<IDashboardService>(dashboardServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
         }
         public IAuthService AuthService => _authService.Value;
         public IJourneyService JourneyService => _journeyService.Value;
@@ -28,5 +32,7 @@ namespace TrainEase.Core.Application.Services
         public IAdminService AdminService => _adminService.Value;
         public ITrainService TrainService => _trainService.Value;
         public IBookingService BookingService => _bookingService.Value;
+        public IPaymentService PaymentService => _paymentService.Value;
+        public IDashboardService DashboardService => _dashboardService.Value;
     }
 }

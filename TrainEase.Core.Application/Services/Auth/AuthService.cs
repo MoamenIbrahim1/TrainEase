@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,11 +19,15 @@ namespace TrainEase.Core.Application.NewFolder.Auth
     public class AuthService(
         IOptions<JwtSettings> jwtSettings,
         UserManager<User> userManager,
-        SignInManager<User> signInManager) : IAuthService
+        SignInManager<User> signInManager,
+        IEmailService emailService,
+        IConfiguration configuration) : IAuthService
     {
         private readonly JwtSettings _jwtSettings = jwtSettings.Value;
         private readonly UserManager<User> _userManager = userManager;
         private readonly SignInManager<User> _signInManager = signInManager;
+        private readonly IEmailService _emailService = emailService;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<UserDto> LoginAsync(LoginDto model)
         {
@@ -41,7 +47,7 @@ namespace TrainEase.Core.Application.NewFolder.Auth
             return await CreateUserDtoAsync(user);
         }
 
-        public async Task<UserDto> RegisterAsync(RegisterDto model)
+        public async Task<RegisterResponseDto> RegisterAsync(RegisterDto model)
         {
             if (await EmailExists(model.Email))
                 throw new BadHttpRequestException("This email is already in use.");
@@ -66,7 +72,85 @@ namespace TrainEase.Core.Application.NewFolder.Auth
 
             await _userManager.AddToRoleAsync(user, UserRole.Passenger.ToString());
 
-            return await CreateUserDtoAsync(user);
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            var baseUrl = _configuration["AppSettings:BaseUrl"];
+
+            if (string.IsNullOrWhiteSpace(baseUrl))
+                throw new BadHttpRequestException("AppSettings:BaseUrl is missing from configuration.");
+
+            var confirmationLink =
+                $"{baseUrl}/api/Account/confirm-email?userId={user.Id}&token={encodedToken}";
+
+            var message = $"""
+    <div style="font-family: Arial, sans-serif; background-color:#f4f7fb; padding:40px 20px; direction:ltr;">
+        <div style="max-width:600px; margin:0 auto; background:#ffffff; border-radius:12px; padding:32px; box-shadow:0 4px 14px rgba(0,0,0,0.08);">
+            <h2 style="margin-top:0; color:#1e3a8a;">Welcome to TrainEase 🚆</h2>
+
+            <p style="font-size:16px; color:#111827;">Hello {user.FullName},</p>
+
+            <p style="font-size:15px; color:#374151; line-height:1.8;">
+                Your account has been created successfully.
+            </p>
+
+            <p style="font-size:15px; color:#374151; line-height:1.8;">
+                Please confirm your email by clicking the button below:
+            </p>
+
+            <div style="margin:30px 0; text-align:center;">
+                <a href="{confirmationLink}"
+                   style="display:inline-block; padding:14px 28px; background-color:#2563eb; color:#ffffff; text-decoration:none; border-radius:8px; font-size:16px; font-weight:bold;">
+                    Confirm Email
+                </a>
+            </div>
+
+            <p style="font-size:14px; color:#6b7280; line-height:1.7;">
+                If you did not create this account, you can safely ignore this email.
+            </p>
+
+            <hr style="border:none; border-top:1px solid #e5e7eb; margin:24px 0;" />
+
+            <p style="font-size:14px; color:#6b7280; margin-bottom:0;">
+                Best regards,<br />
+                <strong>TrainEase Team</strong>
+            </p>
+        </div>
+    </div>
+    """;
+
+            await _emailService.SendEmailAsync(
+                user.Email!,
+                "Confirm your TrainEase account",
+                message);
+
+            return new RegisterResponseDto
+            {
+                Message = "Account created successfully. Please check your email to confirm your account."
+            };
+        }
+
+        public async Task<string> ConfirmEmailAsync(string userId, string token)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user is null)
+                throw new BadHttpRequestException("Invalid user.");
+
+            if (user.EmailConfirmed)
+                return "Email is already confirmed.";
+
+            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(token));
+
+            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(" | ", result.Errors.Select(e => e.Description));
+                throw new BadHttpRequestException(errors);
+            }
+
+            return "Email confirmed successfully.";
         }
 
         public async Task<bool> EmailExists(string email)

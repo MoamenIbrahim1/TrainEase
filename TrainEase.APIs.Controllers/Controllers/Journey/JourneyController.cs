@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TrainEase.APIs.Controllers.Controllers.Base;
+using TrainEase.Core.Application.Abstrations.Model.Journey;
 using TrainEase.Core.Application.Abstrations.Services;
- 
+
 namespace TrainEase.APIs.Controllers.Controllers.Journey
-{ 
+{
     public class JourneyController(IServiceManager _serviceManager) : BaseApiController
     {
         //[Authorize(Roles = "Passenger")]
@@ -25,5 +25,11 @@ namespace TrainEase.APIs.Controllers.Controllers.Journey
             var result = await _serviceManager.JourneyService.GetAllJourneysAsync();
             return Ok(result);
         }
+        [HttpPost("CreateJourney")]
+        public async Task<IActionResult> CreateJourney([FromBody] JourneyCreateDto journeyCreateDto)
+        {
+            var result = await _serviceManager.JourneyService.CreateJourneyAsync(journeyCreateDto);
+            return Ok(result);
+        }
     }
-} 
+}

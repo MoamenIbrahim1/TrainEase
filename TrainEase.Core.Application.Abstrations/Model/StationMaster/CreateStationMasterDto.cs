@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TrainEase.Core.Application.Abstrations.Model.StationMaster
+﻿namespace TrainEase.Core.Application.Abstrations.Model.StationMaster
 {
     public class CreateStationMasterDto
     {

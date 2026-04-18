@@ -51,7 +51,8 @@ namespace TrainEase.APIs
                 {
                     policy.WithOrigins(
                         "http://127.0.0.1:5500",
-                        "http://192.168.47.1:5000"
+                        "http://192.168.47.1:5000",
+                        "https://train-ease.netlify.app"
                     )
                     .AllowAnyHeader()
                     .AllowAnyMethod();
@@ -103,12 +104,14 @@ namespace TrainEase.APIs
             });
 
             app.UseHttpsRedirection();
+
+            app.UseRouting();
             app.UseCors("AllowFrontend");
+
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
-
             app.Run();
         }
     }

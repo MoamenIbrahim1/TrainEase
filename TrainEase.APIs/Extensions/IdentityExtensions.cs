@@ -14,9 +14,13 @@ namespace TrainEase.APIs.Extensions
         public static IServiceCollection AddIdentityServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<JwtSettings>(configuration.GetSection("jwtSettings"));
-            services.AddIdentity<User, IdentityRole>()
-              .AddEntityFrameworkStores<AppDbContext>();
 
+            services.AddIdentity<User, IdentityRole>(options =>
+            {
+                options.SignIn.RequireConfirmedEmail = true;
+            })
+            .AddEntityFrameworkStores<AppDbContext>()
+            .AddDefaultTokenProviders();
 
             services.AddScoped(typeof(IAuthService), typeof(AuthService));
 
@@ -41,7 +45,8 @@ namespace TrainEase.APIs.Extensions
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = configuration["JwtSettings:Issuer"],
                     ValidAudience = configuration["JwtSettings:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(configuration["jwtSettings:Key"]!))
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        System.Text.Encoding.UTF8.GetBytes(configuration["jwtSettings:Key"]!))
                 };
             });
 
