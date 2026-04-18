@@ -9,5 +9,6 @@ namespace TrainEase.Core.Application.Abstrations.Services
           int toStationId,
           DateTime date);
         Task<IEnumerable<JourneySearchResultDto>> GetAllJourneysAsync();
+        Task<JourneySearchResultDto> CreateJourneyAsync(JourneyCreateDto journeyCreateDto);
     }
 }

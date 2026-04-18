@@ -6,6 +6,7 @@ using TrainEase.Core.Application.EmailSettings;
 using TrainEase.Core.Application.Services;
 using TrainEase.Core.Application.Services.Admin;
 using TrainEase.Core.Application.Services.Booking;
+using TrainEase.Core.Application.Services.Dashboard;
 using TrainEase.Core.Application.Services.Email;
 using TrainEase.Core.Application.Services.Journey;
 using TrainEase.Core.Application.Services.Payment;
@@ -64,6 +65,12 @@ namespace TrainEase.Core.Application
 
             services.Configure<EmailSetting>(configuration.GetSection("EmailSettings"));
             services.AddScoped<IEmailService, EmailService>();
+
+            services.AddScoped<IDashboardService, DashboardService>();
+            services.AddScoped<Func<IDashboardService>>(provider =>
+            {
+                return () => provider.GetRequiredService<IDashboardService>();
+            });
             return services;
         }
     }

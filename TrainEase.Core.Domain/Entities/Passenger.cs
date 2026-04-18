@@ -9,7 +9,7 @@ namespace TrainEase.Core.Domain.Entities
         public required string PhoneNumber { get; set; }
         public int Age { get; set; }
         public required string NationalId { get; set; }
-
         public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+        
     }
 }
