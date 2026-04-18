@@ -2,9 +2,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using TrainEase.Core.Application.Abstrations.Model.Payment;
 using TrainEase.Core.Application.Abstrations.Services;
+using TrainEase.Core.Application.EmailSettings;
 using TrainEase.Core.Application.Services;
 using TrainEase.Core.Application.Services.Admin;
 using TrainEase.Core.Application.Services.Booking;
+using TrainEase.Core.Application.Services.Email;
 using TrainEase.Core.Application.Services.Journey;
 using TrainEase.Core.Application.Services.Payment;
 using TrainEase.Core.Application.Services.Stations;
@@ -60,6 +62,8 @@ namespace TrainEase.Core.Application
             services.Configure<PaymobSettings>(configuration.GetSection("Paymob"));
             services.AddHttpClient<IPaymentService, PaymentService>();
 
+            services.Configure<EmailSetting>(configuration.GetSection("EmailSettings"));
+            services.AddScoped<IEmailService, EmailService>();
             return services;
         }
     }

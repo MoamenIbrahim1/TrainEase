@@ -51,6 +51,7 @@ namespace TrainEase.Core.Application.Services.Admin
                 NationalId = stationMasterDto.NationalId,
                 Role = UserRole.StationMaster,
                 StationId = stationMasterDto.AssignedStationId,
+                EmailConfirmed = true
             };
             // Create the user with the specified password
             var result = await _userManager.CreateAsync(stationMaster, stationMasterDto.Password);

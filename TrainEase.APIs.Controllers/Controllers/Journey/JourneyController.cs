@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using TrainEase.APIs.Controllers.Controllers.Base;
 using TrainEase.Core.Application.Abstrations.Services;
- 
+
 namespace TrainEase.APIs.Controllers.Controllers.Journey
-{ 
+{
     public class JourneyController(IServiceManager _serviceManager) : BaseApiController
     {
         //[Authorize(Roles = "Passenger")]
@@ -26,4 +25,4 @@ namespace TrainEase.APIs.Controllers.Controllers.Journey
             return Ok(result);
         }
     }
-} 
+}
