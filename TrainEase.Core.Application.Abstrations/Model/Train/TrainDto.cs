@@ -9,10 +9,11 @@ namespace TrainEase.Core.Application.Abstrations.Model.Train
     public class TrainDto
     {
         public int Id { get; set; }
-        public string TrainNumber { get; set; }
-        public string TrainName { get; set; }
-        public string TrainType { get; set; }
-
-        public int Carriages { get; set; }
+        public string TrainNumber { get; set; } = null!;
+        public string TrainName { get; set; } = null!;
+        public string TrainType { get; set; } = null!;
+        public int CarriagesCount { get; set; }
+        public int ClassesCount { get; set; }
+        public List<TrainClassDto> Classes { get; set; } = new();
     }
 }

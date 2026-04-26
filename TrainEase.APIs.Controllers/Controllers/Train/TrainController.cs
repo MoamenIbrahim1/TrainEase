@@ -20,12 +20,10 @@ namespace TrainEase.APIs.Controllers.Controllers.Train
         }
 
         [HttpPost("[action]")]
-        public async Task<ActionResult> AddTrain(AddTrainDto addTrainDto)
+        public async Task<ActionResult> AddTrain([FromBody] AddTrainDto addTrainDto)
         {
             var result = await _serviceManager.TrainService.AddTrainAsync(addTrainDto);
-            if (!result)
-                return BadRequest("Failed to add train");
-            return Ok("Train added successfully");
+            return result ? Ok("Train added successfully") : BadRequest("Failed to add train");
         }
 
         [HttpDelete("[action]")]
@@ -41,6 +39,12 @@ namespace TrainEase.APIs.Controllers.Controllers.Train
         public async Task<ActionResult<TrainDto>> EditTrain(int id, [FromBody] EditTrainDto editTrainDto)
         {
             var result = await _serviceManager.TrainService.EditTrainAsync(id ,editTrainDto);
+            return Ok(result);
+        }
+        [HttpGet("GetTrainClasses/{trainId}")]
+        public async Task<IActionResult> GetTrainClasses(int trainId)
+        {
+            var result = await _serviceManager.TrainService.GetTrainClassesAsync(trainId);
             return Ok(result);
         }
     }

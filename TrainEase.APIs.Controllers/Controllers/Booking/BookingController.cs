@@ -42,5 +42,18 @@ namespace TrainEase.APIs.Controllers.Controllers.Booking
                 .GetAllBookingsAsync();
             return Ok(result);
         }
+        [HttpPut("cancel/{bookingId}")]
+        public async Task<IActionResult> CancelBooking(int bookingId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var result = await serviceManager.BookingService.CancelBookingAsync(bookingId, userId);
+            return Ok(result);
+        }
+      [HttpGet("{bookingId}")]
+        public async Task<IActionResult> GetBooking(int bookingId)
+        {
+            var result = await serviceManager.BookingService.GetBookingAsync(bookingId);
+            return Ok(result);
+        }
     }
 }

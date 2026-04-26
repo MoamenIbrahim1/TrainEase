@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using TrainEase.Core.Application.Abstrations.Model.Carriage;
 
 namespace TrainEase.Core.Application.Abstrations.Model.Journey
 {
@@ -14,5 +10,10 @@ namespace TrainEase.Core.Application.Abstrations.Model.Journey
         public List<int> IntermediateStationIds { get; set; } = new();
         public DateTime DepartureTime { get; set; }
         public DateTime ArrivalTime { get; set; }
+
+        // ✅ الأسعار بتيجي per carriage مش per class
+        public List<ClassPriceDto> CarriagePrices { get; set; } = new();
     }
+
+   
 }

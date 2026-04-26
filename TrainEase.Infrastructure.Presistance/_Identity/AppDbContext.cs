@@ -60,5 +60,6 @@ namespace TrainEase.Infrastructure.Presistance._Data
         public DbSet<Refund> Refunds { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Passenger> Passengers { get; set; }
+        public DbSet<TrainDelay> TrainDelays { get; set; }
     }
 }

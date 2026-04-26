@@ -66,7 +66,7 @@ namespace TrainEase.Core.Application.Mapping
            .ForSourceMember(src => src.IntermediateStationIds, opt => opt.DoNotValidate());
 
 
-          
+
             #endregion
 
             //Train Mappings
@@ -78,9 +78,7 @@ namespace TrainEase.Core.Application.Mapping
                .ForMember(dest => dest.TrainName,
                    opt => opt.MapFrom(src => src.TrainName))
                .ForMember(dest => dest.TrainType,
-                   opt => opt.MapFrom(src => src.Type))
-               .ForMember(dest => dest.Carriages,
-                   opt => opt.MapFrom(src => src.Carriages.Count));
+                   opt => opt.MapFrom(src => src.Type));
         }
     }
 }

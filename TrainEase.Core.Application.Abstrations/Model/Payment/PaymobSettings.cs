@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TrainEase.Core.Application.Abstrations.Model.Payment
+﻿namespace TrainEase.Core.Application.Abstrations.Model.Payment
 {
     public class PaymobSettings
     {
@@ -12,5 +6,6 @@ namespace TrainEase.Core.Application.Abstrations.Model.Payment
         public int IntegrationId { get; set; }
         public string IframeId { get; set; } = null!;
         public string HmacSecret { get; set; } = null!;
+        public string SecretKey { get; set; } = string.Empty;
     }
 }

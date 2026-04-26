@@ -13,7 +13,7 @@ namespace TrainEase.Core.Application.Abstrations.Model.Booking
         public string SeatNumber { get; set; } = null!;
         public string CarriageNumber { get; set; } = null!;
         public string ClassType { get; set; } = null!;       
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
         // Train info
         public string TrainName { get; set; } = null!;

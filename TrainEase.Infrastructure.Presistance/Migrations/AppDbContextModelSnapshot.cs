@@ -199,7 +199,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Carriage", b =>
@@ -226,7 +226,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<decimal>("PricePerSeat")
+                    b.Property<decimal?>("PricePerSeat")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -240,7 +240,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("TrainId");
 
-                    b.ToTable("Carriages", (string)null);
+                    b.ToTable("Carriages");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Invoice", b =>
@@ -283,7 +283,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.HasIndex("BookingId")
                         .IsUnique();
 
-                    b.ToTable("Invoices", (string)null);
+                    b.ToTable("Invoices");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Notification", b =>
@@ -326,7 +326,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Passenger", b =>
@@ -401,6 +401,16 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("PaymobOrderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("PaymobTransactionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal>("RefundedAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -412,7 +422,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.HasIndex("BookingId")
                         .IsUnique();
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Refund", b =>
@@ -447,7 +457,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.HasIndex("BookingId")
                         .IsUnique();
 
-                    b.ToTable("Refunds", (string)null);
+                    b.ToTable("Refunds");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Route", b =>
@@ -475,7 +485,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Routes", (string)null);
+                    b.ToTable("Routes");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.RouteStation", b =>
@@ -507,7 +517,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("StationId");
 
-                    b.ToTable("RouteStations", (string)null);
+                    b.ToTable("RouteStations");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Schedule", b =>
@@ -594,7 +604,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("CarriageId");
 
-                    b.ToTable("Seats", (string)null);
+                    b.ToTable("Seats");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Station", b =>
@@ -622,7 +632,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Stations", (string)null);
+                    b.ToTable("Stations");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Ticket", b =>
@@ -671,7 +681,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Tickets", (string)null);
+                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Train", b =>
@@ -703,6 +713,51 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Trains", (string)null);
+                });
+
+            modelBuilder.Entity("TrainEase.Core.Domain.Entities.TrainDelay", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DelayMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("NotifiedPassengersCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ReportedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReportedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ScheduleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReportedByUserId");
+
+                    b.HasIndex("ScheduleId");
+
+                    b.ToTable("TrainDelays");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.User", b =>
@@ -1020,6 +1075,25 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.Navigation("Seat");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TrainEase.Core.Domain.Entities.TrainDelay", b =>
+                {
+                    b.HasOne("TrainEase.Core.Domain.Entities.User", "ReportedByUser")
+                        .WithMany()
+                        .HasForeignKey("ReportedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrainEase.Core.Domain.Entities.Schedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ReportedByUser");
+
+                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.User", b =>

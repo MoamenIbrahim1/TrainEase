@@ -13,7 +13,7 @@ namespace TrainEase.Core.Application.Abstrations.Model.Carriage
         public string CarriageNumber { get; set; } = null!;
         public string ClassType { get; set; } = null!;
         public int SeatsCount { get; set; }
-        public decimal PricePerSeat { get; set; }
+        public decimal? PricePerSeat { get; set; }
         public List<SeatInfoDto> Seats { get; set; } = new();
     }
 }

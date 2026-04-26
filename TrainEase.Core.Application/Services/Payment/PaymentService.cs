@@ -19,13 +19,18 @@ namespace TrainEase.Core.Application.Services.Payment
         HttpClient httpClient) : IPaymentService
     {
         private readonly PaymobSettings _settings = paymobSettings.Value;
-         
+        private const int PendingBookingExpirationMinutes = 15;
         public async Task<PaymentResultDto> InitiatePaymentAsync(int bookingId, string userId)
         {
+           
+
             var bookingRepo = unitOfWork.GetRepository<TrainEase.Core.Domain.Entities.Booking, int>();
+            var paymentRepo = unitOfWork.GetRepository<TrainEase.Core.Domain.Entities.Payment, int>();
+
             var booking = await bookingRepo
                 .GetQueryable(b => b.Id == bookingId && !b.IsDeleted)
                 .Include(b => b.User)
+                .Include(b => b.Payment)
                 .FirstOrDefaultAsync();
 
             if (booking is null)
@@ -34,10 +39,31 @@ namespace TrainEase.Core.Application.Services.Payment
             if (booking.UserId != userId)
                 throw new UnAuthorizedException("This booking does not belong to you.");
 
+            if (booking.Status == BookingStatus.Pending &&
+                booking.BookingDate < DateTime.UtcNow.AddMinutes(-PendingBookingExpirationMinutes))
+            {
+                booking.Status = BookingStatus.Cancelled;
+                booking.UpdatedAt = DateTime.UtcNow;
+                bookingRepo.Update(booking);
+
+                var stalePayments = await paymentRepo
+                    .GetQueryable(p => p.BookingId == bookingId && !p.IsDeleted && p.Status == PaymentStatus.Pending)
+                    .ToListAsync();
+
+                foreach (var stalePayment in stalePayments)
+                {
+                    stalePayment.Status = PaymentStatus.Failed;
+                    stalePayment.UpdatedAt = DateTime.UtcNow;
+                    paymentRepo.Update(stalePayment);
+                }
+
+                await unitOfWork.CompeleteAsync();
+
+                throw new BadRequestException("This booking expired after 15 minutes and was cancelled.");
+            }
+
             if (booking.Status != BookingStatus.Pending)
                 throw new BadRequestException("This booking is already paid or cancelled.");
-
-            var paymentRepo = unitOfWork.GetRepository<TrainEase.Core.Domain.Entities.Payment, int>();
 
             var latestPayment = await paymentRepo
                 .GetQueryable(p => p.BookingId == bookingId && !p.IsDeleted)
@@ -47,7 +73,6 @@ namespace TrainEase.Core.Application.Services.Payment
             if (latestPayment is not null && latestPayment.Status == PaymentStatus.Paid)
                 throw new BadRequestException("This booking is already paid.");
 
-            // لو فيه pending قديمة، نقفلها كـ failed قبل إنشاء محاولة جديدة
             if (latestPayment is not null && latestPayment.Status == PaymentStatus.Pending)
             {
                 latestPayment.Status = PaymentStatus.Failed;

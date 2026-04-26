@@ -7,6 +7,7 @@ using TrainEase.Core.Application.Services;
 using TrainEase.Core.Application.Services.Admin;
 using TrainEase.Core.Application.Services.Booking;
 using TrainEase.Core.Application.Services.Dashboard;
+using TrainEase.Core.Application.Services.Delays;
 using TrainEase.Core.Application.Services.Email;
 using TrainEase.Core.Application.Services.Journey;
 using TrainEase.Core.Application.Services.Payment;
@@ -58,6 +59,12 @@ namespace TrainEase.Core.Application
             services.AddScoped<Func<IPaymentService>>(provider =>
             {
                 return () => provider.GetRequiredService<IPaymentService>();
+            });
+
+            services.AddScoped<ITrainDelayService, TrainDelayService>();
+            services.AddScoped<Func<ITrainDelayService>>(provider =>
+            {
+                return () => provider.GetRequiredService<ITrainDelayService>();
             });
 
             services.Configure<PaymobSettings>(configuration.GetSection("Paymob"));
