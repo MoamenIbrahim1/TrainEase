@@ -67,8 +67,7 @@ namespace TrainEase.Core.Application.Services.Delays
             var notificationMessage = BuildNotificationMessage(
                 trainNumber: schedule.Train.TrainNumber!,
                 delayMinutes: dto.DelayMinutes,
-                newTime: newTime,
-                reason: dto.Reason
+                newTime: newTime
             );
 
             var notifiedEmails = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -107,7 +106,6 @@ namespace TrainEase.Core.Application.Services.Delays
                         delayMinutes: dto.DelayMinutes,
                         originalTime: originalTime,
                         newTime: newTime,
-                        reason: dto.Reason,
                         stationName: stationMasterUser.Station!.Name!
                     );
 
@@ -143,7 +141,6 @@ namespace TrainEase.Core.Application.Services.Delays
                 ScheduleId = dto.ScheduleId,
                 ReportedByUserId = stationMasterUserId,
                 DelayMinutes = dto.DelayMinutes,
-                Reason = dto.Reason,
                 ReportedAt = DateTime.UtcNow,
                 NotifiedPassengersCount = notifiedCount,
                 CreatedAt = DateTime.UtcNow
@@ -158,7 +155,6 @@ namespace TrainEase.Core.Application.Services.Delays
                 TrainNumber = schedule.Train.TrainNumber!,
                 TrainName = schedule.Train.TrainName!,
                 DelayMinutes = dto.DelayMinutes,
-                Reason = dto.Reason,
                 ReportedAt = delay.ReportedAt,
                 NotifiedPassengersCount = notifiedCount,
                 StationName = stationMasterUser.Station!.Name!
@@ -235,18 +231,14 @@ namespace TrainEase.Core.Application.Services.Delays
         private static string BuildNotificationMessage(
             string trainNumber,
             int? delayMinutes,
-            string? newTime,
-            string? reason)
+            string? newTime)
         {
             // الرسالة الأساسية
             var msg = delayMinutes.HasValue && newTime is not null
                 ? $"تأخير {delayMinutes} دقيقة في قطار {trainNumber} — الموعد الجديد: {newTime}."
                 : $"قطار {trainNumber} سيتأخر عن موعده.";
 
-            // أضف السبب لو موجود
-            if (!string.IsNullOrWhiteSpace(reason))
-                msg += $" السبب: {reason}";
-
+          
             return msg;
         }
 
@@ -271,7 +263,6 @@ namespace TrainEase.Core.Application.Services.Delays
             TrainNumber = d.Schedule.Train.TrainNumber!,
             TrainName = d.Schedule.Train.TrainName!,
             DelayMinutes = d.DelayMinutes,
-            Reason = d.Reason,
             ReportedAt = d.ReportedAt,
             NotifiedPassengersCount = d.NotifiedPassengersCount,
             StationName = d.ReportedByUser.Station?.Name ?? ""
@@ -287,7 +278,6 @@ namespace TrainEase.Core.Application.Services.Delays
             int? delayMinutes,
             string originalTime,
             string? newTime,
-            string? reason,
             string stationName)
         {
             // ✅ صفوف الوقت — تظهر بس لو delayMinutes موجودة
@@ -315,15 +305,6 @@ namespace TrainEase.Core.Application.Services.Delays
                   """
                 : "";
 
-            // ✅ صف السبب — يظهر بس لو reason موجودة
-            var reasonRow = !string.IsNullOrWhiteSpace(reason)
-                ? $"""
-                  <tr>
-                    <td style="padding:8px 0;color:#555;">سبب التأخير</td>
-                    <td style="padding:8px 0;font-weight:bold;color:#222;">{reason}</td>
-                  </tr>
-                  """
-                : "";
 
             // ✅ نص الـ note يتغير حسب المعلومات المتاحة
             var noteText = delayMinutes.HasValue
@@ -378,7 +359,6 @@ namespace TrainEase.Core.Application.Services.Delays
                                 <td style="padding:8px 0;font-weight:bold;color:#222;">{to}</td>
                               </tr>
                               {timeRows}
-                              {reasonRow}
                               <tr>
                                 <td style="padding:8px 0;color:#555;">المحطة المُبلِّغة</td>
                                 <td style="padding:8px 0;font-weight:bold;color:#222;">

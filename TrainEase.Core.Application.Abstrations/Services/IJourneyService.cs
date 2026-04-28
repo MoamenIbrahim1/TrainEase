@@ -10,5 +10,6 @@ namespace TrainEase.Core.Application.Abstrations.Services
           DateTime date);
         Task<IEnumerable<JourneySearchResultDto>> GetAllJourneysAsync();
         Task<JourneySearchResultDto> CreateJourneyAsync(JourneyCreateDto journeyCreateDto);
+        Task<bool> DeleteJourneyAsync(int journeyId);
     }
 }

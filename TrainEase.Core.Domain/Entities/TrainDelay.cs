@@ -11,7 +11,6 @@ namespace TrainEase.Core.Domain.Entities
         public virtual User ReportedByUser { get; set; } = null!;
 
         public int? DelayMinutes { get; set; }
-        public string? Reason { get; set; }
         public DateTime ReportedAt { get; set; }
 
         // عدد الركاب اللي اتبعتلهم SMS

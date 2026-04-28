@@ -329,6 +329,49 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("TrainEase.Core.Domain.Entities.Offer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("DiscountPercentage")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ScheduleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("ScheduleId");
+
+                    b.ToTable("Offers");
+                });
+
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Passenger", b =>
                 {
                     b.Property<int>("Id")
@@ -735,9 +778,6 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.Property<int>("NotifiedPassengersCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("Reason")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("ReportedAt")
                         .HasColumnType("datetime2");
 
@@ -953,6 +993,25 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.Navigation("SentByUser");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TrainEase.Core.Domain.Entities.Offer", b =>
+                {
+                    b.HasOne("TrainEase.Core.Domain.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TrainEase.Core.Domain.Entities.Schedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Payment", b =>

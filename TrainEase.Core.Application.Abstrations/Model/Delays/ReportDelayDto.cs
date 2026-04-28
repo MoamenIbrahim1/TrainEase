@@ -10,6 +10,5 @@ namespace TrainEase.Core.Application.Abstrations.Model.Delays
     {
         public int ScheduleId { get; set; }
         public int? DelayMinutes { get; set; }
-        public string? Reason { get; set; }
     }
 }

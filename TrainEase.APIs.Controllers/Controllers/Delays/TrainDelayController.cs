@@ -19,14 +19,7 @@ namespace TrainEase.APIs.Controllers.Controllers.Delays
             return Ok(result);
         }
 
-        // Admin يشوف كل التأخيرات
-        [Authorize(Roles = "Admin")]
-        [HttpGet("GetAllDelays")]
-        public async Task<IActionResult> GetAllDelays()
-        {
-            var result = await serviceManager.TrainDelayService.GetAllDelaysAsync();
-            return Ok(result);
-        }
+       
 
         // StationMaster يشوف تأخيرات محطته
         [Authorize(Roles = "StationMaster")]

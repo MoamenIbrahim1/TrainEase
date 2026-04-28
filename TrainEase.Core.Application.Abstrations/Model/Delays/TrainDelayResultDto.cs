@@ -12,7 +12,6 @@ namespace TrainEase.Core.Application.Abstrations.Model.Delays
         public string TrainNumber { get; set; } = null!;
         public string TrainName { get; set; } = null!;
         public int? DelayMinutes { get; set; }
-        public string? Reason { get; set; }
         public DateTime ReportedAt { get; set; }
         public int NotifiedPassengersCount { get; set; }
         public string StationName { get; set; } = null!;

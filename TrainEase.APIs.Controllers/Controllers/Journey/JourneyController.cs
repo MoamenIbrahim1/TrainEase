@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TrainEase.APIs.Controllers.Controllers.Base;
 using TrainEase.Core.Application.Abstrations.Model.Journey;
 using TrainEase.Core.Application.Abstrations.Services;
@@ -19,16 +20,18 @@ namespace TrainEase.APIs.Controllers.Controllers.Journey
 
             return Ok(result);
         }
-        [HttpGet("AllJourneys")]
-        public async Task<IActionResult> GetAllJourneys()
-        {
-            var result = await _serviceManager.JourneyService.GetAllJourneysAsync();
-            return Ok(result);
-        }
+
         [HttpPost("CreateJourney")]
         public async Task<IActionResult> CreateJourney([FromBody] JourneyCreateDto journeyCreateDto)
         {
             var result = await _serviceManager.JourneyService.CreateJourneyAsync(journeyCreateDto);
+            return Ok(result);
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("DeleteJourney/{journeyId}")]
+        public async Task<IActionResult> DeleteJourney(int journeyId)
+        {
+            var result = await _serviceManager.JourneyService.DeleteJourneyAsync(journeyId);
             return Ok(result);
         }
     }

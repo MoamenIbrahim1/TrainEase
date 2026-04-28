@@ -235,5 +235,26 @@ namespace TrainEase.Core.Application.Services.Journey
                 ClassPrices = classPrices
             };
         }
+
+        public async Task<bool> DeleteJourneyAsync(int journeyId)
+        {
+            var scheduleRepo = _unitOfWork.GetRepository<Schedule, int>();
+
+            var schedule = scheduleRepo
+                .GetQueryable(s => s.Id == journeyId && !s.IsDeleted)
+                .FirstOrDefault();
+
+            if (schedule is null)
+                throw new BadRequestException("Journey not found.");
+
+            scheduleRepo.Delete(schedule);
+
+            var deleted = await _unitOfWork.CompeleteAsync() > 0;
+
+            if (!deleted)
+                throw new BadRequestException("Failed to delete journey.");
+
+            return true;
+        }
     }
 }

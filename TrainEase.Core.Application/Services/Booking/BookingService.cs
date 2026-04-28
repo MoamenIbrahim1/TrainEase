@@ -7,13 +7,14 @@ using TrainEase.Core.Application.Abstrations.Model.Seat;
 using TrainEase.Core.Application.Abstrations.Services;
 using TrainEase.Core.Application.Exceptions;
 using TrainEase.Core.Application.Services.Email;
+using TrainEase.Core.Application.Services.Offers;
 using TrainEase.Core.Domain.Contracts;
 using TrainEase.Core.Domain.Entities;
 using TrainEase.Core.Domain.Entities.Enums;
 
 namespace TrainEase.Core.Application.Services.Booking
 {
-    public class BookingService(IUnitOfWork unitOfWork, UserManager<User> userManager, IEmailService emailService) : IBookingService
+    public class BookingService(IUnitOfWork unitOfWork, UserManager<User> userManager, IEmailService emailService,IOfferService _offerService) : IBookingService
     {
         private const int PendingBookingExpirationMinutes = 15;
 
@@ -95,16 +96,16 @@ namespace TrainEase.Core.Application.Services.Booking
             var additionalPassengers = dto.AdditionalPassengers ?? new List<PassengerBookingDto>();
 
             var allPassengers = new List<PassengerBookingDto>
-            {
-                new PassengerBookingDto
-                {
-                    FullName = user.FullName,
-                    NationalId = user.NationalId,
-                    Email = user.Email,
-                    PhoneNumber = user.PhoneNumber!,
-                    SeatId = dto.UserSeatId
-                }
-            };
+    {
+        new PassengerBookingDto
+        {
+            FullName    = user.FullName,
+            NationalId  = user.NationalId,
+            Email       = user.Email,
+            PhoneNumber = user.PhoneNumber!,
+            SeatId      = dto.UserSeatId
+        }
+    };
 
             allPassengers.AddRange(additionalPassengers);
 
@@ -146,9 +147,9 @@ namespace TrainEase.Core.Application.Services.Booking
                 .Select(x => x.Seat.Id)
                 .ToHashSet();
 
-            var invalidSeatId = requestedSeatIds.FirstOrDefault(id => !allTrainSeatIds.Contains(id));
-            if (invalidSeatId != 0)
-                throw new BadRequestException($"Seat {invalidSeatId} does not belong to this train.");
+            var invalidSeats = requestedSeatIds.Where(id => !allTrainSeatIds.Contains(id)).ToList();
+            if (invalidSeats.Any())
+                throw new BadRequestException($"Seat(s) {string.Join(", ", invalidSeats)} do not belong to this train.");
 
             var cutoff = DateTime.UtcNow.AddMinutes(-PendingBookingExpirationMinutes);
 
@@ -165,9 +166,9 @@ namespace TrainEase.Core.Application.Services.Booking
                 .Select(t => t.SeatId)
                 .ToListAsync();
 
-            var conflictingSeat = requestedSeatIds.FirstOrDefault(id => alreadyBookedSeatIds.Contains(id));
-            if (conflictingSeat != 0)
-                throw new BadRequestException($"Seat {conflictingSeat} is already booked.");
+            var conflictingSeats = requestedSeatIds.Where(id => alreadyBookedSeatIds.Contains(id)).ToList();
+            if (conflictingSeats.Any())
+                throw new BadRequestException($"Seat(s) {string.Join(", ", conflictingSeats)} are already booked.");
 
             var intermediateStops = schedule.Route.RouteStations
                 .OrderBy(rs => rs.Sequence)
@@ -193,6 +194,9 @@ namespace TrainEase.Core.Application.Services.Booking
             await bookingRepo.AddAsync(booking);
             await unitOfWork.CompeleteAsync();
 
+            //  جيب الـ offer مرة واحدة قبل الـ loop
+            var activeOffer = await _offerService.GetActiveOfferByScheduleAsync(dto.ScheduleId);
+
             var ticketResults = new List<TicketResultDto>();
             decimal totalAmount = 0m;
 
@@ -209,8 +213,8 @@ namespace TrainEase.Core.Application.Services.Booking
                         Name = p.FullName.Trim(),
                         NationalId = p.NationalId.Trim(),
                         Email = string.IsNullOrWhiteSpace(p.Email)
-                            ? $"{p.NationalId}@trainease.com"
-                            : p.Email.Trim(),
+                                        ? $"{p.NationalId}@trainease.com"
+                                        : p.Email.Trim(),
                         PhoneNumber = p.PhoneNumber.Trim(),
                         Age = 0,
                         CreatedAt = DateTime.UtcNow
@@ -219,10 +223,18 @@ namespace TrainEase.Core.Application.Services.Booking
                     await passengerRepo.AddAsync(passenger);
                     await unitOfWork.CompeleteAsync();
                 }
+
                 var seatData = allSeats.First(x => x.Seat.Id == p.SeatId);
                 var seat = seatData.Seat;
                 var carriage = seatData.Carriage;
                 var seatPrice = carriage.PricePerSeat ?? 0m;
+
+                //  طبق الخصم لو في offer — مرة واحدة بس للـ offer
+                if (activeOffer is not null)
+                {
+                    var discountAmount = seatPrice * (activeOffer.DiscountPercentage / 100m);
+                    seatPrice = Math.Round(seatPrice - discountAmount, 2);
+                }
 
                 if (seatPrice <= 0)
                     throw new BadRequestException($"Seat price for carriage {carriage.CarriageNumber} is invalid.");
@@ -262,7 +274,6 @@ namespace TrainEase.Core.Application.Services.Booking
 
             booking.TotalAmount = totalAmount;
             bookingRepo.Update(booking);
-
             await unitOfWork.CompeleteAsync();
 
             return new BookingResultDto

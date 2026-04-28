@@ -15,8 +15,9 @@ namespace TrainEase.Core.Application.Services
         private readonly Lazy<IPaymentService> _paymentService;
         private readonly Lazy<IDashboardService> _dashboardService;
         private readonly Lazy<ITrainDelayService> _trainDelayService;
+        private readonly Lazy<IOfferService> _offerService;
 
-        public ServiceManager(IUnitOfWork unitOfWork, Func<IAuthService> authServiceFactory, Func<IJourneyService> journeyServiceFactory, Func<IStationService> stationServiceFactory, Func<IAdminService> adminServiceFactory, Func<ITrainService> trainServiceFactory, Func<IBookingService> bookingServiceFactory,Func<IPaymentService> paymentServiceFactory, Func<IDashboardService> dashboardServiceFactory, Func<ITrainDelayService> trainDelayServiceFactory)
+        public ServiceManager(IUnitOfWork unitOfWork, Func<IAuthService> authServiceFactory, Func<IJourneyService> journeyServiceFactory, Func<IStationService> stationServiceFactory, Func<IAdminService> adminServiceFactory, Func<ITrainService> trainServiceFactory, Func<IBookingService> bookingServiceFactory,Func<IPaymentService> paymentServiceFactory, Func<IDashboardService> dashboardServiceFactory, Func<ITrainDelayService> trainDelayServiceFactory, Func<IOfferService> offerServiceFactory)
         {
             _authService = new Lazy<IAuthService>(authServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             _journeyService = new Lazy<IJourneyService>(journeyServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
@@ -27,6 +28,7 @@ namespace TrainEase.Core.Application.Services
             _paymentService = new Lazy<IPaymentService>(paymentServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             _dashboardService = new Lazy<IDashboardService>(dashboardServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
             _trainDelayService = new Lazy<ITrainDelayService>(trainDelayServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
+            _offerService = new Lazy<IOfferService>(offerServiceFactory, LazyThreadSafetyMode.ExecutionAndPublication);
         }
         public IAuthService AuthService => _authService.Value;
         public IJourneyService JourneyService => _journeyService.Value;
@@ -37,5 +39,6 @@ namespace TrainEase.Core.Application.Services
         public IPaymentService PaymentService => _paymentService.Value;
         public IDashboardService DashboardService => _dashboardService.Value;
         public ITrainDelayService TrainDelayService => _trainDelayService.Value;
+        public IOfferService OfferService => _offerService.Value;
     }
 }
