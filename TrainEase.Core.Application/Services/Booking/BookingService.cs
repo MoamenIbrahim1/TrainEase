@@ -14,10 +14,13 @@ using TrainEase.Core.Domain.Entities.Enums;
 
 namespace TrainEase.Core.Application.Services.Booking
 {
-    public class BookingService(IUnitOfWork unitOfWork, UserManager<User> userManager, IEmailService emailService,IOfferService _offerService) : IBookingService
+    public class BookingService(
+        IUnitOfWork unitOfWork,
+        UserManager<User> userManager,
+        IEmailService emailService,
+        IOfferService _offerService) : IBookingService
     {
         private const int PendingBookingExpirationMinutes = 15;
-
 
         public async Task<JourneySeatsDto> GetSeatsByScheduleAsync(int scheduleId)
         {
@@ -73,6 +76,7 @@ namespace TrainEase.Core.Application.Services.Booking
                 Carriages = carriages
             };
         }
+
         public async Task<BookingResultDto> CreateBookingAsync(CreateBookingDto dto, string userId)
         {
             if (dto is null)
@@ -89,23 +93,21 @@ namespace TrainEase.Core.Application.Services.Booking
                 string.IsNullOrWhiteSpace(user.NationalId) ||
                 string.IsNullOrWhiteSpace(user.Email) ||
                 string.IsNullOrWhiteSpace(user.PhoneNumber))
-            {
                 throw new BadRequestException("Your account data is incomplete. Please complete your profile first.");
-            }
 
             var additionalPassengers = dto.AdditionalPassengers ?? new List<PassengerBookingDto>();
 
             var allPassengers = new List<PassengerBookingDto>
-    {
-        new PassengerBookingDto
-        {
-            FullName    = user.FullName,
-            NationalId  = user.NationalId,
-            Email       = user.Email,
-            PhoneNumber = user.PhoneNumber!,
-            SeatId      = dto.UserSeatId
-        }
-    };
+            {
+                new PassengerBookingDto
+                {
+                    FullName    = user.FullName,
+                    NationalId  = user.NationalId,
+                    Email       = user.Email,
+                    PhoneNumber = user.PhoneNumber!,
+                    SeatId      = dto.UserSeatId
+                }
+            };
 
             allPassengers.AddRange(additionalPassengers);
 
@@ -115,7 +117,6 @@ namespace TrainEase.Core.Application.Services.Booking
                 throw new BadRequestException("Duplicate seats in the same booking.");
 
             var nationalIds = allPassengers.Select(p => p.NationalId.Trim()).ToList();
-
             if (nationalIds.Distinct(StringComparer.OrdinalIgnoreCase).Count() != nationalIds.Count)
                 throw new BadRequestException("Duplicate national IDs in the same booking.");
 
@@ -136,23 +137,16 @@ namespace TrainEase.Core.Application.Services.Booking
                 throw new NotFoundException("Schedule", dto.ScheduleId);
 
             var allSeats = schedule.Train.Carriages
-                .SelectMany(c => c.Seats.Select(seat => new
-                {
-                    Seat = seat,
-                    Carriage = c
-                }))
+                .SelectMany(c => c.Seats.Select(seat => new { Seat = seat, Carriage = c }))
                 .ToList();
 
-            var allTrainSeatIds = allSeats
-                .Select(x => x.Seat.Id)
-                .ToHashSet();
+            var allTrainSeatIds = allSeats.Select(x => x.Seat.Id).ToHashSet();
 
             var invalidSeats = requestedSeatIds.Where(id => !allTrainSeatIds.Contains(id)).ToList();
             if (invalidSeats.Any())
                 throw new BadRequestException($"Seat(s) {string.Join(", ", invalidSeats)} do not belong to this train.");
 
             var cutoff = DateTime.UtcNow.AddMinutes(-PendingBookingExpirationMinutes);
-
             var ticketRepo = unitOfWork.GetRepository<Ticket, int>();
 
             var alreadyBookedSeatIds = await ticketRepo
@@ -194,7 +188,7 @@ namespace TrainEase.Core.Application.Services.Booking
             await bookingRepo.AddAsync(booking);
             await unitOfWork.CompeleteAsync();
 
-            //  جيب الـ offer مرة واحدة قبل الـ loop
+            // ✅ جيب الـ offer مرة واحدة قبل الـ loop
             var activeOffer = await _offerService.GetActiveOfferByScheduleAsync(dto.ScheduleId);
 
             var ticketResults = new List<TicketResultDto>();
@@ -229,7 +223,7 @@ namespace TrainEase.Core.Application.Services.Booking
                 var carriage = seatData.Carriage;
                 var seatPrice = carriage.PricePerSeat ?? 0m;
 
-                //  طبق الخصم لو في offer — مرة واحدة بس للـ offer
+                // ✅ طبق الخصم لو في offer
                 if (activeOffer is not null)
                 {
                     var discountAmount = seatPrice * (activeOffer.DiscountPercentage / 100m);
@@ -264,6 +258,7 @@ namespace TrainEase.Core.Application.Services.Booking
                     Price = seatPrice,
                     TrainName = schedule.Train.TrainName!,
                     TrainNumber = schedule.Train.TrainNumber!,
+                    // ✅ من schedule مباشرة
                     SourceStation = schedule.SourceStation!.Name!,
                     DestinationStation = schedule.DestinationStation!.Name!,
                     DepartureTime = schedule.DepartureTime,
@@ -291,51 +286,62 @@ namespace TrainEase.Core.Application.Services.Booking
             await ExpireOldPendingBookingsAsync(userId: userId);
 
             var bookingRepo = unitOfWork.GetRepository<TrainEase.Core.Domain.Entities.Booking, int>();
+
             var bookings = await bookingRepo
                 .GetQueryable(b => b.UserId == userId && !b.IsDeleted)
                 .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Passenger)
+                .Include(b => b.Tickets)
                     .ThenInclude(t => t.Seat)
                         .ThenInclude(s => s.Carriage)
+                // ✅ من b.Schedule مباشرةً
                 .Include(b => b.Schedule)
                     .ThenInclude(s => s.Train)
                 .Include(b => b.Schedule)
                     .ThenInclude(s => s.SourceStation)
                 .Include(b => b.Schedule)
                     .ThenInclude(s => s.DestinationStation)
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.Route)
+                        .ThenInclude(r => r.RouteStations)
+                            .ThenInclude(rs => rs.Station)
                 .ToListAsync();
 
-            var bookingResults = bookings.Select(b => new BookingResultDto
+            return bookings.Select(b =>
             {
-                BookingId = b.Id!,
-                Status = b.Status.ToString(),
-                TotalAmount = b.TotalAmount,
-                BookingDate = b.BookingDate,
-                Tickets = b.Tickets.Select(t => new TicketResultDto
-                {
-                    TicketId = t.Id!,
-                    PassengerName = t.Passenger!.Name,
-                    SeatNumber = t.Seat!.SeatNumber!,
-                    CarriageNumber = t.Seat.Carriage!.CarriageNumber!,
-                    ClassType = t.Seat.Carriage.ClassType!,
-                    Price = t.Price,
-                    TrainName = t.Seat.Carriage.Train!.TrainName!,
-                    TrainNumber = t.Seat.Carriage.Train.TrainNumber!,
-                    SourceStation = t.Seat.Carriage.Train.Schedules.Select(s => s.SourceStation!.Name!).FirstOrDefault()!,
-                    DestinationStation = t.Seat.Carriage.Train.Schedules.Select(s => s.DestinationStation!.Name!).FirstOrDefault()!,
-                    DepartureTime = t.Seat.Carriage.Train.Schedules.Select(s => s.DepartureTime).FirstOrDefault(),
-                    ArrivalTime = t.Seat.Carriage.Train.Schedules.Select(s => s.ArrivalTime).FirstOrDefault(),
-                    IntermediateStops = t.Seat.Carriage.Train.Schedules.Select(s => s.Route.RouteStations
-                        .OrderBy(rs => rs.Sequence)
-                        .Select(rs => rs.Station.Name!)
-                        .Where(name =>
-                            name != s.SourceStation!.Name &&
-                            name != s.DestinationStation!.Name)
-                        .ToList())
-                        .FirstOrDefault() ?? new List<string>()
-                }).ToList()
-            });
+                var intermediateStops = b.Schedule.Route.RouteStations
+                    .OrderBy(rs => rs.Sequence)
+                    .Select(rs => rs.Station.Name!)
+                    .Where(name =>
+                        name != b.Schedule.SourceStation!.Name &&
+                        name != b.Schedule.DestinationStation!.Name)
+                    .ToList();
 
-            return bookingResults;
+                return new BookingResultDto
+                {
+                    BookingId = b.Id!,
+                    Status = b.Status.ToString(),
+                    TotalAmount = b.TotalAmount,
+                    BookingDate = b.BookingDate,
+                    Tickets = b.Tickets.Select(t => new TicketResultDto
+                    {
+                        TicketId = t.Id!,
+                        PassengerName = t.Passenger!.Name,
+                        SeatNumber = t.Seat!.SeatNumber!,
+                        CarriageNumber = t.Seat.Carriage!.CarriageNumber!,
+                        ClassType = t.Seat.Carriage.ClassType!,
+                        Price = t.Price,
+                        // ✅ من b.Schedule مش من Train.Schedules
+                        TrainName = b.Schedule.Train.TrainName!,
+                        TrainNumber = b.Schedule.Train.TrainNumber!,
+                        SourceStation = b.Schedule.SourceStation!.Name!,
+                        DestinationStation = b.Schedule.DestinationStation!.Name!,
+                        DepartureTime = b.Schedule.DepartureTime,
+                        ArrivalTime = b.Schedule.ArrivalTime,
+                        IntermediateStops = intermediateStops
+                    }).ToList()
+                };
+            }).ToList();
         }
 
         public async Task<IEnumerable<BookingResultDto>> GetAllBookingsAsync()
@@ -343,26 +349,106 @@ namespace TrainEase.Core.Application.Services.Booking
             await ExpireOldPendingBookingsAsync();
 
             var bookingRepo = unitOfWork.GetRepository<TrainEase.Core.Domain.Entities.Booking, int>();
+
             var bookings = await bookingRepo
                 .GetQueryable(b => !b.IsDeleted)
                 .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Passenger)
+                .Include(b => b.Tickets)
                     .ThenInclude(t => t.Seat)
                         .ThenInclude(s => s.Carriage)
+                // ✅ من b.Schedule مباشرةً
                 .Include(b => b.Schedule)
                     .ThenInclude(s => s.Train)
                 .Include(b => b.Schedule)
                     .ThenInclude(s => s.SourceStation)
                 .Include(b => b.Schedule)
                     .ThenInclude(s => s.DestinationStation)
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.Route)
+                        .ThenInclude(r => r.RouteStations)
+                            .ThenInclude(rs => rs.Station)
                 .ToListAsync();
 
-            var bookingResults = bookings.Select(b => new BookingResultDto
+            return bookings.Select(b =>
             {
-                BookingDate = b.BookingDate,
-                BookingId = b.Id!,
-                Status = b.Status.ToString(),
-                TotalAmount = b.TotalAmount,
-                Tickets = b.Tickets.Select(t => new TicketResultDto
+                var intermediateStops = b.Schedule.Route.RouteStations
+                    .OrderBy(rs => rs.Sequence)
+                    .Select(rs => rs.Station.Name!)
+                    .Where(name =>
+                        name != b.Schedule.SourceStation!.Name &&
+                        name != b.Schedule.DestinationStation!.Name)
+                    .ToList();
+
+                return new BookingResultDto
+                {
+                    BookingId = b.Id!,
+                    Status = b.Status.ToString(),
+                    TotalAmount = b.TotalAmount,
+                    BookingDate = b.BookingDate,
+                    Tickets = b.Tickets.Select(t => new TicketResultDto
+                    {
+                        TicketId = t.Id!,
+                        PassengerName = t.Passenger!.Name,
+                        SeatNumber = t.Seat!.SeatNumber!,
+                        CarriageNumber = t.Seat.Carriage!.CarriageNumber!,
+                        ClassType = t.Seat.Carriage.ClassType!,
+                        Price = t.Price,
+                        // ✅ من b.Schedule مش من Train.Schedules
+                        TrainName = b.Schedule.Train.TrainName!,
+                        TrainNumber = b.Schedule.Train.TrainNumber!,
+                        SourceStation = b.Schedule.SourceStation!.Name!,
+                        DestinationStation = b.Schedule.DestinationStation!.Name!,
+                        DepartureTime = b.Schedule.DepartureTime,
+                        ArrivalTime = b.Schedule.ArrivalTime,
+                        IntermediateStops = intermediateStops
+                    }).ToList()
+                };
+            }).ToList();
+        }
+       
+        public async Task<BookingResultDto> GetBookingAsync(int id)
+        {
+            var bookingRepo = unitOfWork.GetRepository<TrainEase.Core.Domain.Entities.Booking, int>();
+
+            var booking = await bookingRepo
+                .GetQueryable(b => b.Id == id && !b.IsDeleted)
+                .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Passenger)
+                .Include(b => b.Tickets)
+                    .ThenInclude(t => t.Seat)
+                        .ThenInclude(s => s.Carriage)
+                // ✅ من b.Schedule مباشرةً
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.Train)
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.SourceStation)
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.DestinationStation)
+                .Include(b => b.Schedule)
+                    .ThenInclude(s => s.Route)
+                        .ThenInclude(r => r.RouteStations)
+                            .ThenInclude(rs => rs.Station)
+                .FirstOrDefaultAsync();
+
+            if (booking is null)
+                throw new NotFoundException("Booking", id);
+
+            var intermediateStops = booking.Schedule.Route.RouteStations
+                .OrderBy(rs => rs.Sequence)
+                .Select(rs => rs.Station.Name!)
+                .Where(name =>
+                    name != booking.Schedule.SourceStation!.Name &&
+                    name != booking.Schedule.DestinationStation!.Name)
+                .ToList();
+
+            return new BookingResultDto
+            {
+                BookingId = booking.Id!,
+                Status = booking.Status.ToString(),
+                TotalAmount = booking.TotalAmount,
+                BookingDate = booking.BookingDate,
+                Tickets = booking.Tickets.Select(t => new TicketResultDto
                 {
                     TicketId = t.Id!,
                     PassengerName = t.Passenger!.Name,
@@ -370,26 +456,18 @@ namespace TrainEase.Core.Application.Services.Booking
                     CarriageNumber = t.Seat.Carriage!.CarriageNumber!,
                     ClassType = t.Seat.Carriage.ClassType!,
                     Price = t.Price,
-                    TrainName = t.Seat.Carriage.Train!.TrainName!,
-                    TrainNumber = t.Seat.Carriage.Train.TrainNumber!,
-                    SourceStation = t.Seat.Carriage.Train.Schedules.Select(s => s.SourceStation!.Name!).FirstOrDefault()!,
-                    DestinationStation = t.Seat.Carriage.Train.Schedules.Select(s => s.DestinationStation!.Name!).FirstOrDefault()!,
-                    DepartureTime = t.Seat.Carriage.Train.Schedules.Select(s => s.DepartureTime).FirstOrDefault(),
-                    ArrivalTime = t.Seat.Carriage.Train.Schedules.Select(s => s.ArrivalTime).FirstOrDefault(),
-                    IntermediateStops = t.Seat.Carriage.Train.Schedules.Select(s => s.Route.RouteStations
-                        .OrderBy(rs => rs.Sequence)
-                        .Select(rs => rs.Station.Name!)
-                        .Where(name =>
-                            name != s.SourceStation!.Name &&
-                            name != s.DestinationStation!.Name)
-                        .ToList())
-                        .FirstOrDefault() ?? new List<string>()
+                    // ✅ من booking.Schedule مش من Train.Schedules
+                    TrainName = booking.Schedule.Train.TrainName!,
+                    TrainNumber = booking.Schedule.Train.TrainNumber!,
+                    SourceStation = booking.Schedule.SourceStation!.Name!,
+                    DestinationStation = booking.Schedule.DestinationStation!.Name!,
+                    DepartureTime = booking.Schedule.DepartureTime,
+                    ArrivalTime = booking.Schedule.ArrivalTime,
+                    IntermediateStops = intermediateStops
                 }).ToList()
-            }).ToList();
-
-            return bookingResults;
+            };
         }
-
+        
         public async Task<CancelBookingResultDto> CancelBookingAsync(int bookingId, string userId)
         {
             var bookingRepo = unitOfWork.GetRepository<TrainEase.Core.Domain.Entities.Booking, int>();
@@ -401,7 +479,7 @@ namespace TrainEase.Core.Application.Services.Booking
                 .Include(b => b.Schedule)
                 .Include(b => b.Payment)
                 .Include(b => b.Refund)
-                .Include(b => b.User)      // ✅ عشان نجيب الإيميل
+                .Include(b => b.User)
                 .FirstOrDefaultAsync();
 
             if (booking is null)
@@ -478,7 +556,6 @@ namespace TrainEase.Core.Application.Services.Booking
             if (!saved)
                 throw new BadRequestException("Failed to cancel booking.");
 
-            // ✅ بعت إيميل الإلغاء بعد ما الداتا اتحفظت
             if (!string.IsNullOrWhiteSpace(booking.User?.Email))
             {
                 var emailBody = BuildCancellationEmailBody(
@@ -492,8 +569,6 @@ namespace TrainEase.Core.Application.Services.Booking
                     departureTime: booking.Schedule.DepartureTime
                 );
 
-                // بنبعت الإيميل بدون await عشان ما نخليش المستخدم يستنى
-                // ولو فشل الإيميل، الـ cancel اتم بنجاح
                 _ = emailService.SendEmailAsync(
                     to: booking.User.Email,
                     subject: "تم إلغاء حجزك — TrainEase 🚆",
@@ -512,43 +587,7 @@ namespace TrainEase.Core.Application.Services.Booking
                 Message = message
             };
         }
-        public async Task<BookingResultDto> GetBookingAsync(int id)
-        {
-            var bookingRepo = unitOfWork.GetRepository<TrainEase.Core.Domain.Entities.Booking, int>();
-            var booking = await bookingRepo.GetAsync(id);
-            var result = new BookingResultDto
-            {
-                BookingId = booking.Id!,
-                Status = booking.Status.ToString(),
-                TotalAmount = booking.TotalAmount,
-                BookingDate = booking.BookingDate,
-                Tickets = booking.Tickets.Select(t => new TicketResultDto
-                {
-                    TicketId = t.Id!,
-                    PassengerName = t.Passenger!.Name,
-                    SeatNumber = t.Seat!.SeatNumber!,
-                    CarriageNumber = t.Seat.Carriage!.CarriageNumber!,
-                    ClassType = t.Seat.Carriage.ClassType!,
-                    Price = t.Price,
-                    TrainName = t.Seat.Carriage.Train!.TrainName!,
-                    TrainNumber = t.Seat.Carriage.Train.TrainNumber!,
-                    SourceStation = t.Seat.Carriage.Train.Schedules.Select(s => s.SourceStation!.Name!).FirstOrDefault()!,
-                    DestinationStation = t.Seat.Carriage.Train.Schedules.Select(s => s.DestinationStation!.Name!).FirstOrDefault()!,
-                    DepartureTime = t.Seat.Carriage.Train.Schedules.Select(s => s.DepartureTime).FirstOrDefault(),
-                    ArrivalTime = t.Seat.Carriage.Train.Schedules.Select(s => s.ArrivalTime).FirstOrDefault(),
-                    IntermediateStops = t.Seat.Carriage.Train.Schedules.Select(s => s.Route.RouteStations
-                        .OrderBy(rs => rs.Sequence)
-                        .Select(rs => rs.Station.Name!)
-                        .Where(name =>
-                            name != s.SourceStation!.Name &&
-                            name != s.DestinationStation!.Name)
-                        .ToList())
-                        .FirstOrDefault() ?? new List<string>()
-                }).ToList()
-            };
-            return result;
 
-        }
         private async Task ExpireOldPendingBookingsAsync(int? scheduleId = null, string? userId = null)
         {
             var bookingRepo = unitOfWork.GetRepository<TrainEase.Core.Domain.Entities.Booking, int>();
@@ -591,145 +630,121 @@ namespace TrainEase.Core.Application.Services.Booking
 
             await unitOfWork.CompeleteAsync();
         }
+
+
         private static decimal GetRefundPercentage(DateTime departureTime)
         {
             var hoursBeforeDeparture = (departureTime - DateTime.UtcNow).TotalHours;
 
-            if (hoursBeforeDeparture >= 48)
-                return 0.90m;
-
-            if (hoursBeforeDeparture >= 12)
-                return 0.75m;
-
-            if (hoursBeforeDeparture >= 4)
-                return 0.50m;
-
-            if (hoursBeforeDeparture > 0)
-                return 0.25m;
+            if (hoursBeforeDeparture >= 48) return 0.90m;
+            if (hoursBeforeDeparture >= 12) return 0.75m;
+            if (hoursBeforeDeparture >= 4) return 0.50m;
+            if (hoursBeforeDeparture > 0) return 0.25m;
 
             return 0m;
         }
         private static string BuildCancellationEmailBody(
-    string userName,
-    int bookingId,
-    decimal originalAmount,
-    decimal refundAmount,
-    decimal penaltyAmount,
-    BookingStatus bookingStatus,
-    DateTime cancellationDate,
-    DateTime departureTime)
+            string userName,
+            int bookingId,
+            decimal originalAmount,
+            decimal refundAmount,
+            decimal penaltyAmount,
+            BookingStatus bookingStatus,
+            DateTime cancellationDate,
+            DateTime departureTime)
         {
             var isRefunded = bookingStatus == BookingStatus.Refunded;
 
             var refundSection = isRefunded
                 ? $"""
-          <tr>
-            <td style="padding:8px 0; color:#555;">المبلغ الأصلي</td>
-            <td style="padding:8px 0; font-weight:bold; color:#222;">{originalAmount:N2} جنيه</td>
-          </tr>
-          <tr>
-            <td style="padding:8px 0; color:#555;">غرامة الإلغاء</td>
-            <td style="padding:8px 0; font-weight:bold; color:#e74c3c;">{penaltyAmount:N2} جنيه</td>
-          </tr>
-          <tr>
-            <td style="padding:8px 0; color:#555;">المبلغ المسترد (داخل النظام)</td>
-            <td style="padding:8px 0; font-weight:bold; color:#27ae60;">{refundAmount:N2} جنيه</td>
-          </tr>
-          """
-                : $"""
-          <tr>
-            <td style="padding:8px 0; color:#555;">حالة الدفع</td>
-            <td style="padding:8px 0; font-weight:bold; color:#e67e22;">لم يتم الدفع</td>
-          </tr>
-          """;
+                  <tr>
+                    <td style="padding:8px 0;color:#555;">المبلغ الأصلي</td>
+                    <td style="padding:8px 0;font-weight:bold;color:#222;">{originalAmount:N2} جنيه</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;color:#555;">غرامة الإلغاء</td>
+                    <td style="padding:8px 0;font-weight:bold;color:#e74c3c;">{penaltyAmount:N2} جنيه</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0;color:#555;">المبلغ المسترد (داخل النظام)</td>
+                    <td style="padding:8px 0;font-weight:bold;color:#27ae60;">{refundAmount:N2} جنيه</td>
+                  </tr>
+                  """
+                : """
+                  <tr>
+                    <td style="padding:8px 0;color:#555;">حالة الدفع</td>
+                    <td style="padding:8px 0;font-weight:bold;color:#e67e22;">لم يتم الدفع</td>
+                  </tr>
+                  """;
 
             return $"""
-        <!DOCTYPE html>
-        <html dir="rtl" lang="ar">
-        <head>
-          <meta charset="UTF-8"/>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        </head>
-        <body style="margin:0; padding:0; background:#f4f6f8; font-family:Arial, sans-serif;">
-          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8; padding:40px 0;">
-            <tr>
-              <td align="center">
-                <table width="600" cellpadding="0" cellspacing="0"
-                       style="background:#ffffff; border-radius:12px; overflow:hidden;
-                              box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-
-                  <!-- Header -->
-                  <tr>
-                    <td style="background:#c0392b; padding:32px; text-align:center;">
-                      <h1 style="margin:0; color:#ffffff; font-size:24px;">🚆 TrainEase</h1>
-                      <p style="margin:8px 0 0; color:#f5b7b1; font-size:14px;">نظام حجز القطارات</p>
-                    </td>
-                  </tr>
-
-                  <!-- Body -->
-                  <tr>
-                    <td style="padding:36px 40px;">
-                      <h2 style="color:#c0392b; margin:0 0 8px;">تم إلغاء حجزك</h2>
-                      <p style="color:#555; font-size:15px; margin:0 0 24px;">
-                        مرحباً <strong>{userName}</strong>،<br/>
-                        نود إعلامك بأنه تم إلغاء الحجز رقم <strong>#{bookingId}</strong> بنجاح.
-                      </p>
-
-                      <!-- Details Table -->
-                      <table width="100%" cellpadding="0" cellspacing="0"
-                             style="background:#fdf2f2; border-radius:8px; padding:20px 24px;
-                                    border:1px solid #f5c6cb;">
+                <!DOCTYPE html>
+                <html dir="rtl" lang="ar">
+                <head><meta charset="UTF-8"/></head>
+                <body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,sans-serif;">
+                  <table width="100%" cellpadding="0" cellspacing="0"
+                         style="background:#f4f6f8;padding:40px 0;">
+                    <tr><td align="center">
+                      <table width="600" cellpadding="0" cellspacing="0"
+                             style="background:#fff;border-radius:12px;overflow:hidden;
+                                    box-shadow:0 2px 8px rgba(0,0,0,0.08);">
                         <tr>
-                          <td style="padding:8px 0; color:#555;">رقم الحجز</td>
-                          <td style="padding:8px 0; font-weight:bold; color:#222;">#{bookingId}</td>
-                        </tr>
-                        <tr>
-                          <td style="padding:8px 0; color:#555;">تاريخ الإلغاء</td>
-                          <td style="padding:8px 0; font-weight:bold; color:#222;">
-                            {cancellationDate:dd/MM/yyyy hh:mm tt}
+                          <td style="background:#c0392b;padding:32px;text-align:center;">
+                            <h1 style="margin:0;color:#fff;font-size:24px;">🚆 TrainEase</h1>
+                            <p style="margin:8px 0 0;color:#f5b7b1;font-size:14px;">نظام حجز القطارات</p>
                           </td>
                         </tr>
                         <tr>
-                          <td style="padding:8px 0; color:#555;">موعد الرحلة</td>
-                          <td style="padding:8px 0; font-weight:bold; color:#222;">
-                            {departureTime:dd/MM/yyyy hh:mm tt}
+                          <td style="padding:36px 40px;">
+                            <h2 style="color:#c0392b;margin:0 0 8px;">تم إلغاء حجزك</h2>
+                            <p style="color:#555;font-size:15px;margin:0 0 24px;">
+                              مرحباً <strong>{userName}</strong>،<br/>
+                              تم إلغاء الحجز رقم <strong>#{bookingId}</strong> بنجاح.
+                            </p>
+                            <table width="100%" cellpadding="0" cellspacing="0"
+                                   style="background:#fdf2f2;border-radius:8px;
+                                          padding:20px 24px;border:1px solid #f5c6cb;">
+                              <tr>
+                                <td style="padding:8px 0;color:#555;">رقم الحجز</td>
+                                <td style="padding:8px 0;font-weight:bold;color:#222;">#{bookingId}</td>
+                              </tr>
+                              <tr>
+                                <td style="padding:8px 0;color:#555;">تاريخ الإلغاء</td>
+                                <td style="padding:8px 0;font-weight:bold;color:#222;">
+                                  {cancellationDate:dd/MM/yyyy hh:mm tt}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td style="padding:8px 0;color:#555;">موعد الرحلة</td>
+                                <td style="padding:8px 0;font-weight:bold;color:#222;">
+                                  {departureTime:dd/MM/yyyy hh:mm tt}
+                                </td>
+                              </tr>
+                              {refundSection}
+                            </table>
+                            {(isRefunded ? $"""
+                            <p style="margin:24px 0 0;padding:16px;background:#eafaf1;
+                                       border-radius:8px;border-right:4px solid #27ae60;
+                                       color:#1e8449;font-size:14px;">
+                              💡 المبلغ المسترد ({refundAmount:N2} جنيه) تم تسجيله داخل النظام.
+                            </p>
+                            """ : "")}
                           </td>
                         </tr>
-                        {refundSection}
+                        <tr>
+                          <td style="background:#f8f9fa;padding:20px 40px;
+                                     text-align:center;border-top:1px solid #dee2e6;">
+                            <p style="margin:0;color:#aaa;font-size:12px;">
+                              © {DateTime.UtcNow.Year} TrainEase — جميع الحقوق محفوظة
+                            </p>
+                          </td>
+                        </tr>
                       </table>
-
-                      <!-- Refund Note (only if refunded) -->
-                      {(isRefunded ? $"""
-                      <p style="margin:24px 0 0; padding:16px; background:#eafaf1; border-radius:8px;
-                                 border-right:4px solid #27ae60; color:#1e8449; font-size:14px;">
-                        💡 ملاحظة: المبلغ المسترد ({refundAmount:N2} جنيه) تم تسجيله داخل النظام.
-                        سيتواصل معك فريق TrainEase لإتمام الإجراءات.
-                      </p>
-                      """ : "")}
-
-                      <p style="margin:24px 0 0; color:#888; font-size:13px;">
-                        إذا لم تقم بهذا الإلغاء أو كان هناك خطأ، يرجى التواصل معنا فوراً.
-                      </p>
-                    </td>
-                  </tr>
-
-                  <!-- Footer -->
-                  <tr>
-                    <td style="background:#f8f9fa; padding:20px 40px; text-align:center;
-                               border-top:1px solid #dee2e6;">
-                      <p style="margin:0; color:#aaa; font-size:12px;">
-                        © {DateTime.UtcNow.Year} TrainEase — جميع الحقوق محفوظة
-                      </p>
-                    </td>
-                  </tr>
-
-                </table>
-              </td>
-            </tr>
-          </table>
-        </body>
-        </html>
-        """;
+                    </td></tr>
+                  </table>
+                </body>
+                </html>
+                """;
         }
     }
 }

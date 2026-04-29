@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TrainEase.APIs.Controllers.Controllers.Base;
 using TrainEase.Core.Application.Abstrations.Model.Auth;
 using TrainEase.Core.Application.Abstrations.Services;
@@ -128,5 +130,42 @@ namespace TrainEase.APIs.Controllers.Controllers.Account
             }
         }
 
+        [Authorize]
+        [HttpGet("My-profile")]
+        public async Task<ActionResult<ProfileDto>> GetProfile()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var result = await serviceManger.AuthService.GetProfileAsync(userId);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPut("Update-profile")]
+        public async Task<ActionResult<ProfileDto>> UpdateProfile([FromBody] UpdateProfileDto model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var result = await serviceManger.AuthService.UpdateProfileAsync(userId, model);
+            return Ok(result);
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto model)
+        {
+            await serviceManger.AuthService.ForgotPasswordAsync(model);
+            return Ok(new
+            {
+                Message = "If the email exists, a password reset link has been sent."
+            });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
+        {
+            await serviceManger.AuthService.ResetPasswordAsync(model);
+            return Ok(new
+            {
+                Message = "Password has been reset successfully."
+            });
+        }
     }
 }
