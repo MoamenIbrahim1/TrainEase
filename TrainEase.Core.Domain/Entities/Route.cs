@@ -7,6 +7,5 @@ namespace TrainEase.Core.Domain.Entities
         public string? RouteName { get; set; }
         public int Sequence { get; set; }
         public virtual ICollection<RouteStation> RouteStations { get; set; } = new HashSet<RouteStation>();
-        public virtual ICollection<Schedule> Schedules { get; set; } = new HashSet<Schedule>();
     }
 }
