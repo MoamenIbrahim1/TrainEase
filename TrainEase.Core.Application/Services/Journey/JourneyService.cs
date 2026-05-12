@@ -152,7 +152,7 @@ namespace TrainEase.Core.Application.Services.Journey
             var schedulesRepo = _unitOfWork.GetRepository<Schedule, int>();
 
             var schedules = await schedulesRepo
-                .GetQueryable(s => !s.IsDeleted)
+                .GetQueryable(s => !s.IsDeleted && s.DepartureTime > DateTime.UtcNow)
                 .Include(s => s.Train)
                     .ThenInclude(t => t.Carriages.Where(c => !c.IsDeleted))
                 .Include(s => s.SourceStation)

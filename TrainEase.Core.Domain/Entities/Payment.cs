@@ -11,6 +11,9 @@ namespace TrainEase.Core.Domain.Entities
         public PaymentMethod Method { get; set; }
         public PaymentStatus Status { get; set; }
         public DateTime PaymentDate { get; set; }
+
+        public long? PaymobTransactionId { get; set; }
+        public long? PaymobOrderId { get; set; }
         public decimal RefundedAmount { get; set; }
     }
 }

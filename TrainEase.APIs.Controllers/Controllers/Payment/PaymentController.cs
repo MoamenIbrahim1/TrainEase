@@ -1,5 +1,4 @@
-﻿// PaymentController.cs
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TrainEase.APIs.Controllers.Controllers.Base;
@@ -14,10 +13,21 @@ namespace TrainEase.APIs.Controllers.Controllers.Payment
         [HttpPost("initiate/{bookingId}")]
         public async Task<IActionResult> InitiatePayment(int bookingId)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            var result = await serviceManager.PaymentService
-                .InitiatePaymentAsync(bookingId, userId);
-            return Ok(result);
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+                var result = await serviceManager.PaymentService
+                    .InitiatePaymentAsync(bookingId, userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message,
+                    inner = ex.InnerException?.Message
+                });
+            }
         }
 
         // Paymob بيستدعي الـ endpoint ده بعد الدفع

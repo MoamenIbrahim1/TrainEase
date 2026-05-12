@@ -8,7 +8,7 @@ namespace TrainEase.Core.Domain.Entities
         public string? FullName { get; set; }
         public string? NationalId { get; set; }
         public UserRole Role { get; set; }
-
+        public bool IsDeleted { get; set; } = false;
         public int? StationId { get; set; }
         public virtual Station? Station { get; set; }
 

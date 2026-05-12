@@ -20,7 +20,6 @@
 	  <ProjectReference Include="..\TrainEase.Core.Application.Abstrations\TrainEase.Core.Application.Abstrations.csproj" />
 	  <ProjectReference Include="..\TrainEase.Core.Application\TrainEase.Core.Application.csproj" />
 	  <ProjectReference Include="..\TrainEase.Infrastructure.Presistance\TrainEase.Infrastructure.Presistance.csproj" />
-	  <ProjectReference Include="..\TrainEase.Infrastructure\TrainEase.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

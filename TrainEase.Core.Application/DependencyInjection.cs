@@ -13,6 +13,7 @@ using TrainEase.Core.Application.Services.Journey;
 using TrainEase.Core.Application.Services.Offers;
 using TrainEase.Core.Application.Services.Payment;
 using TrainEase.Core.Application.Services.Stations;
+using TrainEase.Core.Application.Services.Tracking;
 using TrainEase.Core.Application.Services.Trains;
 
 namespace TrainEase.Core.Application
@@ -85,6 +86,13 @@ namespace TrainEase.Core.Application
             {
                 return () => provider.GetRequiredService<IDashboardService>();
             });
+
+            services.AddScoped<ITrackingService, TrackingService>();
+            services.AddScoped<Func<ITrackingService>>(provider =>
+            {
+                return () => provider.GetRequiredService<ITrackingService>();
+            });
+
             return services;
         }
     }

@@ -7,7 +7,7 @@ using TrainEase.Core.Application.Abstrations.Services;
 
 namespace TrainEase.APIs.Controllers.Controllers.Booking
 {
-    [Authorize]
+    [Authorize(Roles = "Passenger")]
     public class BookingsController(IServiceManager serviceManager) : BaseApiController
     {
         [HttpGet("journeys/{journeyId}/seats")]

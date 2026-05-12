@@ -273,6 +273,7 @@ namespace TrainEase.Core.Application.Services.Booking
 
             return new BookingResultDto
             {
+                ScheduleId = booking.ScheduleId,
                 BookingId = booking.Id!,
                 Status = booking.Status.ToString(),
                 TotalAmount = booking.TotalAmount,
@@ -319,6 +320,7 @@ namespace TrainEase.Core.Application.Services.Booking
 
                 return new BookingResultDto
                 {
+                    ScheduleId = b.ScheduleId,
                     BookingId = b.Id!,
                     Status = b.Status.ToString(),
                     TotalAmount = b.TotalAmount,
@@ -382,6 +384,7 @@ namespace TrainEase.Core.Application.Services.Booking
 
                 return new BookingResultDto
                 {
+                    ScheduleId = b.ScheduleId,
                     BookingId = b.Id!,
                     Status = b.Status.ToString(),
                     TotalAmount = b.TotalAmount,
@@ -444,6 +447,7 @@ namespace TrainEase.Core.Application.Services.Booking
 
             return new BookingResultDto
             {
+                ScheduleId = booking.ScheduleId,
                 BookingId = booking.Id!,
                 Status = booking.Status.ToString(),
                 TotalAmount = booking.TotalAmount,

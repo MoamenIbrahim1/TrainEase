@@ -34,7 +34,7 @@ namespace TrainEase.Core.Application.NewFolder.Auth
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
 
-            if (user is null)
+            if (user is null || user.IsDeleted == true)
                 throw new UnAuthorizedException("Invalid email or password");
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);

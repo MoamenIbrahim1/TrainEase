@@ -152,6 +152,7 @@ namespace TrainEase.Core.Application.Services.Delays
             return new TrainDelayResultDto
             {
                 DelayId = delay.Id,
+                ScheduleId = delay.ScheduleId,
                 TrainNumber = schedule.Train.TrainNumber!,
                 TrainName = schedule.Train.TrainName!,
                 DelayMinutes = dto.DelayMinutes,
@@ -260,12 +261,16 @@ namespace TrainEase.Core.Application.Services.Delays
         private static TrainDelayResultDto MapToDto(TrainDelay d) => new()
         {
             DelayId = d.Id,
+            ScheduleId = d.ScheduleId,
             TrainNumber = d.Schedule.Train.TrainNumber!,
             TrainName = d.Schedule.Train.TrainName!,
             DelayMinutes = d.DelayMinutes,
             ReportedAt = d.ReportedAt,
             NotifiedPassengersCount = d.NotifiedPassengersCount,
-            StationName = d.ReportedByUser.Station?.Name ?? ""
+            StationName =
+                 d.ReportedByUser?.Station?.Name
+                 ?? d.Schedule?.SourceStation?.Name
+                 ?? "Unknown Station"        
         };
 
       

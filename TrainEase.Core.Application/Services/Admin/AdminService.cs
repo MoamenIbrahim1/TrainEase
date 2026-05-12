@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,12 +18,18 @@ namespace TrainEase.Core.Application.Services.Admin
     {
         public async Task<IEnumerable<StationMasterDto>> GetAllStationMastersAsync()
         {
-           var stationMasters = _userManager.Users.Where(u => u.Role == UserRole.StationMaster).ToList();
+            // ✅ استثني المحذوفين
+            var stationMasters = _userManager.Users
+                .Where(u => u.Role == UserRole.StationMaster && !u.IsDeleted)
+                .ToList();
+
             var stationMasterDtos = new List<StationMasterDto>();
             foreach (var stationMaster in stationMasters)
             {
                 var role = (await _userManager.GetRolesAsync(stationMaster)).FirstOrDefault();
-                var station = await _unitOfWork.GetRepository<Station, int>().GetAsync(stationMaster.StationId??0);
+                var station = await _unitOfWork.GetRepository<Station, int>()
+                    .GetAsync(stationMaster.StationId ?? 0);
+
                 stationMasterDtos.Add(new StationMasterDto
                 {
                     Id = stationMaster.Id,
@@ -36,14 +43,28 @@ namespace TrainEase.Core.Application.Services.Admin
             }
             return stationMasterDtos;
         }
+
         public async Task<StationMasterDto> AssignStationMasterAsync(CreateStationMasterDto stationMasterDto)
         {
-            if (await _userManager.FindByEmailAsync(stationMasterDto.Email) is not null)
+            // تحقق إن الإيميل مش موجود
+            var existingUser = await _userManager.FindByEmailAsync(stationMasterDto.Email);
+            if (existingUser is not null && !existingUser.IsDeleted)
                 throw new NotFoundException("User with this email already exists.", stationMasterDto.Email);
+
+            //  تحقق إن المحطة معندهاش ناظر خالص
+            var stationAlreadyHasMaster = _userManager.Users.Any(u =>
+                u.Role == UserRole.StationMaster &&
+                !u.IsDeleted &&
+                u.StationId == stationMasterDto.AssignedStationId);
+
+            if (stationAlreadyHasMaster)
+                throw new ValidationException
+                {
+                    Errors = ["This station already has a station master assigned."]
+                };
 
             var stationMaster = new User
             {
-                
                 FullName = stationMasterDto.FullName,
                 Email = stationMasterDto.Email,
                 UserName = stationMasterDto.Email,
@@ -53,7 +74,7 @@ namespace TrainEase.Core.Application.Services.Admin
                 StationId = stationMasterDto.AssignedStationId,
                 EmailConfirmed = true
             };
-            // Create the user with the specified password
+
             var result = await _userManager.CreateAsync(stationMaster, stationMasterDto.Password);
             if (!result.Succeeded)
             {
@@ -62,11 +83,13 @@ namespace TrainEase.Core.Application.Services.Admin
                     Errors = result.Errors.Select(e => e.Description)
                 };
             }
-            // Add the user to the StationMaster role
+
             await _userManager.AddToRoleAsync(stationMaster, UserRole.StationMaster.ToString());
 
             var role = await _userManager.GetRolesAsync(stationMaster);
-            var station = await _unitOfWork.GetRepository<Station, int>().GetAsync(stationMaster.StationId??0);
+            var station = await _unitOfWork.GetRepository<Station, int>()
+                .GetAsync(stationMaster.StationId ?? 0);
+
             return new StationMasterDto
             {
                 Id = stationMaster.Id,
@@ -79,14 +102,18 @@ namespace TrainEase.Core.Application.Services.Admin
             };
         }
 
-
         public async Task<bool> RemoveStationMasterAsync(string stationMasterId)
         {
-            var stationMaster =  await _userManager.FindByIdAsync(stationMasterId);
-            if (stationMaster == null || stationMaster.Role != UserRole.StationMaster)
+            var stationMaster = await _userManager.FindByIdAsync(stationMasterId);
+
+            if (stationMaster == null || stationMaster.IsDeleted || stationMaster.Role != UserRole.StationMaster)
                 throw new NotFoundException("Station master not found.", stationMasterId);
 
-            var result = await _userManager.DeleteAsync(stationMaster);
+            // ✅ Soft Delete + Unassign من المحطة
+            stationMaster.IsDeleted = true;
+            stationMaster.StationId = null;
+
+            var result = await _userManager.UpdateAsync(stationMaster);
             if (!result.Succeeded)
             {
                 throw new ValidationException

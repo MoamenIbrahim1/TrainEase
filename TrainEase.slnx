@@ -11,8 +11,5 @@
   </Folder>
   <Folder Name="/src/Infrastructure/">
     <Project Path="TrainEase.Infrastructure.Presistance/TrainEase.Infrastructure.Presistance.csproj" />
-    <Project Path="TrainEase.Infrastructure/TrainEase.Infrastructure.csproj" />
   </Folder>
-  <Folder Name="/src/UI/" />
-  <Folder Name="/test/" />
 </Solution>

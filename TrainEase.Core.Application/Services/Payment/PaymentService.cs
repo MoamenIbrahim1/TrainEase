@@ -128,7 +128,9 @@ namespace TrainEase.Core.Application.Services.Payment
                 .GetProperty("merchant_order_id")
                 .GetString();
 
-            if (!int.TryParse(merchantOrderId, out int bookingId))
+            var bookingIdPart = merchantOrderId?.Split('-').FirstOrDefault();
+
+            if (!int.TryParse(bookingIdPart, out int bookingId))
                 return;
 
             var bookingRepo = unitOfWork.GetRepository<TrainEase.Core.Domain.Entities.Booking, int>();
@@ -227,29 +229,35 @@ namespace TrainEase.Core.Application.Services.Payment
 
         private async Task<long> CreateOrderAsync(string authToken, TrainEase.Core.Domain.Entities.Booking booking)
         {
+            var merchantOrderId = $"{booking.Id}-{DateTime.UtcNow:yyyyMMddHHmmss}";
+
             var body = new
             {
                 auth_token = authToken,
                 delivery_needed = false,
                 amount_cents = (int)(booking.TotalAmount * 100),
                 currency = "EGP",
-                merchant_order_id = booking.Id!.ToString(),
+                merchant_order_id = merchantOrderId,
                 items = new[]
                 {
-                    new
-                    {
-                        name = $"Booking #{booking.Id}",
-                        amount_cents = (int)(booking.TotalAmount * 100),
-                        description = "Train Ticket",
-                        quantity = 1
-                    }
-                }
+            new
+            {
+                name = $"Booking #{booking.Id}",
+                amount_cents = (int)(booking.TotalAmount * 100),
+                description = "Train Ticket",
+                quantity = 1
+            }
+        }
             };
 
             var response = await httpClient.PostAsJsonAsync(
                 "https://accept.paymob.com/api/ecommerce/orders", body);
 
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorText = await response.Content.ReadAsStringAsync();
+                throw new BadRequestException($"Paymob create order failed: {errorText}");
+            }
 
             var content = await response.Content.ReadFromJsonAsync<JsonElement>();
 

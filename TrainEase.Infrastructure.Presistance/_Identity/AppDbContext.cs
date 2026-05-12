@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Reflection.Emit;
 using TrainEase.Core.Domain.Contracts;
 using TrainEase.Core.Domain.Entities;
 
@@ -38,6 +39,17 @@ namespace TrainEase.Infrastructure.Presistance._Data
                 property.SetPrecision(18);
                 property.SetScale(2);
             }
+            builder.Entity<TrainTracking>()
+         .HasOne(t => t.DepartedFromStation)
+         .WithMany()
+         .HasForeignKey(t => t.DepartedFromStationId)
+         .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<TrainTracking>()
+                .HasOne(t => t.HeadingToStation)
+                .WithMany()
+                .HasForeignKey(t => t.HeadingToStationId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -62,5 +74,6 @@ namespace TrainEase.Infrastructure.Presistance._Data
         public DbSet<Passenger> Passengers { get; set; }
         public DbSet<TrainDelay> TrainDelays { get; set; }
         public DbSet<Offer> Offers { get; set; }
+        public DbSet<TrainTracking> TrainTrackings { get; set; }
     }
 }

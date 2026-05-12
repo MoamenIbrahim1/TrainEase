@@ -667,6 +667,12 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -800,6 +806,46 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.ToTable("TrainDelays");
                 });
 
+            modelBuilder.Entity("TrainEase.Core.Domain.Entities.TrainTracking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ActualDepartureTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DelayMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DepartedFromStationId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ExpectedArrivalTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("HeadingToStationId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ScheduleId")
+                        .HasColumnType("int");
+
+                    b.Property<double>("TotalDistanceMeters")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartedFromStationId");
+
+                    b.HasIndex("HeadingToStationId");
+
+                    b.HasIndex("ScheduleId");
+
+                    b.ToTable("TrainTrackings");
+                });
+
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.User", b =>
                 {
                     b.Property<string>("Id")
@@ -823,6 +869,9 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -879,9 +928,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.HasIndex("StationId")
-                        .IsUnique()
-                        .HasFilter("[StationId] IS NOT NULL");
+                    b.HasIndex("StationId");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -1064,7 +1111,7 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                         .IsRequired();
 
                     b.HasOne("TrainEase.Core.Domain.Entities.Route", "Route")
-                        .WithMany("Schedules")
+                        .WithMany()
                         .HasForeignKey("RouteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1155,11 +1202,38 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
                     b.Navigation("Schedule");
                 });
 
+            modelBuilder.Entity("TrainEase.Core.Domain.Entities.TrainTracking", b =>
+                {
+                    b.HasOne("TrainEase.Core.Domain.Entities.Station", "DepartedFromStation")
+                        .WithMany()
+                        .HasForeignKey("DepartedFromStationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("TrainEase.Core.Domain.Entities.Station", "HeadingToStation")
+                        .WithMany()
+                        .HasForeignKey("HeadingToStationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("TrainEase.Core.Domain.Entities.Schedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("ScheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("DepartedFromStation");
+
+                    b.Navigation("HeadingToStation");
+
+                    b.Navigation("Schedule");
+                });
+
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.User", b =>
                 {
                     b.HasOne("TrainEase.Core.Domain.Entities.Station", "Station")
-                        .WithOne("StationMaster")
-                        .HasForeignKey("TrainEase.Core.Domain.Entities.User", "StationId");
+                        .WithMany()
+                        .HasForeignKey("StationId");
 
                     b.Navigation("Station");
                 });
@@ -1188,15 +1262,11 @@ namespace TrainEase.Infrastructure.Presistance.Migrations
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Route", b =>
                 {
                     b.Navigation("RouteStations");
-
-                    b.Navigation("Schedules");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Station", b =>
                 {
                     b.Navigation("RouteStations");
-
-                    b.Navigation("StationMaster");
                 });
 
             modelBuilder.Entity("TrainEase.Core.Domain.Entities.Train", b =>

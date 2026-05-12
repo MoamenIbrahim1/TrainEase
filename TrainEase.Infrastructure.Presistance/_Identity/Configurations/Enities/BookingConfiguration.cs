@@ -16,9 +16,10 @@ namespace TrainEase.Infrastructure.Presistance._Data.Configurations.Enities
 
 
             builder.HasOne(b => b.User)
-                   .WithMany()
-                   .HasForeignKey(b => b.UserId)
-                   .OnDelete(DeleteBehavior.NoAction);
+           .WithMany()
+           .HasForeignKey(b => b.UserId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.Cascade);
 
 
             builder.HasOne(b => b.Invoice)
