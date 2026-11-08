@@ -10,7 +10,7 @@ namespace TrainEase.Core.Domain.Entities
         public UserRole Role { get; set; }
         public bool IsDeleted { get; set; } = false;
         public int? StationId { get; set; }
-        public virtual Station? Station { get; set; }
+        public virtual Station? station { get; set; }
 
         public virtual ICollection<Booking> Bookings { get; set; } = new HashSet<Booking>();
         public virtual ICollection<Notification> Notifications { get; set; } = new HashSet<Notification>();

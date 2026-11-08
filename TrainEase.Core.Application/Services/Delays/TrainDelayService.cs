@@ -21,7 +21,7 @@ namespace TrainEase.Core.Application.Services.Delays
         {
             var stationMasterUser = await userManager
                 .Users
-                .Include(u => u.Station)
+                .Include(u => u.station)
                 .FirstOrDefaultAsync(u => u.Id == stationMasterUserId);
 
             if (stationMasterUser is null || stationMasterUser.Role != UserRole.StationMaster)
@@ -106,7 +106,7 @@ namespace TrainEase.Core.Application.Services.Delays
                         delayMinutes: dto.DelayMinutes,
                         originalTime: originalTime,
                         newTime: newTime,
-                        stationName: stationMasterUser.Station!.Name!
+                        stationName: stationMasterUser.station!.Name!
                     );
 
                     emailTasks.Add(emailService.SendEmailAsync(
@@ -158,7 +158,7 @@ namespace TrainEase.Core.Application.Services.Delays
                 DelayMinutes = dto.DelayMinutes,
                 ReportedAt = delay.ReportedAt,
                 NotifiedPassengersCount = notifiedCount,
-                StationName = stationMasterUser.Station!.Name!
+                StationName = stationMasterUser.station!.Name!
             };
         }
 
@@ -172,7 +172,7 @@ namespace TrainEase.Core.Application.Services.Delays
                 .Include(d => d.Schedule).ThenInclude(s => s.Train)
                 .Include(d => d.Schedule).ThenInclude(s => s.SourceStation)
                 .Include(d => d.Schedule).ThenInclude(s => s.DestinationStation)
-                .Include(d => d.ReportedByUser).ThenInclude(u => u.Station)
+                .Include(d => d.ReportedByUser).ThenInclude(u => u.station)
                 .OrderByDescending(d => d.ReportedAt)
                 .ToListAsync();
 
@@ -188,7 +188,7 @@ namespace TrainEase.Core.Application.Services.Delays
                 .Include(d => d.Schedule).ThenInclude(s => s.Train)
                 .Include(d => d.Schedule).ThenInclude(s => s.SourceStation)
                 .Include(d => d.Schedule).ThenInclude(s => s.DestinationStation)
-                .Include(d => d.ReportedByUser).ThenInclude(u => u.Station)
+                .Include(d => d.ReportedByUser).ThenInclude(u => u.station)
                 .OrderByDescending(d => d.ReportedAt)
                 .ToListAsync();
 
@@ -268,7 +268,7 @@ namespace TrainEase.Core.Application.Services.Delays
             ReportedAt = d.ReportedAt,
             NotifiedPassengersCount = d.NotifiedPassengersCount,
             StationName =
-                 d.ReportedByUser?.Station?.Name
+                 d.ReportedByUser?.station?.Name
                  ?? d.Schedule?.SourceStation?.Name
                  ?? "Unknown Station"        
         };
